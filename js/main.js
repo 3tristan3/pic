@@ -11,6 +11,37 @@ import { processStitch } from './stitch.js';
 // --- 全局变量：存储批量上传的文件 ---
 let globalBatchFiles = [];
 let stitchFiles = []; 
+
+function updateGreeting() {
+    const hour = new Date().getHours();
+    const greetingEl = document.getElementById('greeting-text');
+    let text = '👋 您好';
+    if (hour >= 5 && hour < 11) text = '☕️ 早上好';
+    else if (hour >= 11 && hour < 13) text = '🍲 中午好';
+    else if (hour >= 13 && hour < 18) text = '💻 下午好';
+    else if (hour >= 18 && hour < 22) text = '🌆 晚上好';
+    else text = '🌙 深夜了';
+    if (greetingEl) greetingEl.innerText = text;
+}
+
+function updateRunTime() {
+    // 【可修改】设置您的建站时间
+    const startDate = new Date("2026-01-01T00:00:00"); 
+    const now = new Date();
+    const diff = now - startDate;
+    if (diff < 0) return;
+    
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    
+    const runTimeEl = document.getElementById('run-time');
+    if (runTimeEl) runTimeEl.innerText = `${days}天 ${hours}时 ${minutes}分 ${seconds}秒`;
+}
+// 初始化执行
+updateGreeting();
+setInterval(updateRunTime, 1000);
 // ============================================================
 // X. 深色模式切换逻辑 (新增)
 // ============================================================

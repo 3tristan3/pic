@@ -8,21 +8,21 @@
     <!-- 引入样式 -->
     <link rel="stylesheet" href="style.css">
     
-    <!-- 第三方库：批量打包用 -->
+    <!-- 第三方库 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    
-    <!-- 第三方库：交互裁剪用 -->
     <link  href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <!-- 统计脚本 (放在头部的兼容性更好) -->
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 </head>
 <body>
 
-<div class="container">
-    <!-- === 深色模式切换按钮 === -->
-    <button class="theme-toggle-btn" id="btn-theme-toggle">
-        🌙 深色模式
-    </button>
+<!-- 深色模式切换 -->
+<button class="theme-toggle-btn" id="btn-theme-toggle">🌙 深色模式</button>
 
+<!-- 主容器 (白色卡片) -->
+<div class="container">
+    
     <div class="header">
         <h1>图片处理工作台</h1>
         <div class="subtitle">Image Processing Workbench</div>
@@ -39,12 +39,11 @@
 
     <div class="workspace">
         
-        <!-- ================= 模块 1: 图片压缩 (弹窗管理模式) ================= -->
+        <!-- 模块 1: 图片压缩 -->
         <div id="tab-resize" class="tool-section active">
             <div class="control-row">
                 <div class="input-group">
                     <label>1. 图片管理</label>
-                    <!-- 点击触发弹窗 -->
                     <div class="fake-file-btn" id="btn-open-modal">
                         📂 管理图片库 (<span id="file-count-label">0</span>)
                     </div>
@@ -61,8 +60,6 @@
             <div style="font-size: 12px; color: var(--text-sub); text-align:center;">
                 ℹ️ 说明：在弹窗中添加图片。若只有1张则生成预览；若多张则自动打包下载 ZIP。
             </div>
-            
-            <!-- 批量处理进度条 -->
             <div id="batch-progress" style="display:none; margin-top:15px; background:var(--bg-hover); border-radius:4px; padding:10px; text-align:center;">
                 <span style="color:var(--primary); font-weight:bold; font-size:14px;">📦 正在批量处理: <span id="batch-count">0/0</span></span>
             </div>
@@ -73,7 +70,6 @@
             <div class="control-row">
                 <div class="input-group">
                     <label>1. 选择图片</label>
-                    <!-- 修改：增加了 file-wrapper 包裹和清除按钮 -->
                     <div class="file-wrapper">
                         <input type="file" id="convert-file" accept="image/*">
                         <div class="file-clear-btn" onclick="clearInput('convert-file')">×</div>
@@ -92,18 +88,13 @@
                     <button class="action-btn" id="btn-run-convert">开始转换</button>
                 </div>
             </div>
-            <div style="font-size: 12px; color: var(--text-sub); text-align:center;">
-                ℹ️ 说明：保持原分辨率，仅转换文件格式。
-            </div>
         </div>
-
 
         <!-- 模块 3: 图片放大 -->
         <div id="tab-upscale" class="tool-section">
             <div class="control-row">
                 <div class="input-group">
                     <label>1. 选择图片</label>
-                    <!-- 修改：增加了 file-wrapper 包裹和清除按钮 -->
                     <div class="file-wrapper">
                         <input type="file" id="upscale-file" accept="image/*">
                         <div class="file-clear-btn" onclick="clearInput('upscale-file')">×</div>
@@ -122,9 +113,6 @@
                     <button class="action-btn" id="btn-run-upscale">开始放大</button>
                 </div>
             </div>
-            <div style="font-size: 12px; color: var(--text-sub); text-align:center;">
-                ℹ️ 说明：采用双三次插值算法，平滑放大图片细节。
-            </div>
         </div>
 
         <!-- 模块 4: 图片裁剪 -->
@@ -132,7 +120,6 @@
             <div class="control-row crop-grid">
                 <div class="input-group">
                     <label>1. 上传图片</label>
-                    <!-- 修改：增加了 file-wrapper 包裹和清除按钮 -->
                     <div class="file-wrapper">
                         <input type="file" id="crop-file" accept="image/*">
                         <div class="file-clear-btn" onclick="clearInput('crop-file')">×</div>
@@ -160,70 +147,53 @@
                     <button class="action-btn" id="btn-run-crop">✂️ 确认裁剪</button>
                 </div>
             </div>
-            
             <div id="crop-editor-container" style="display:none; margin-top: 20px;">
                 <div style="height: 400px; background: var(--cropper-bg); border-radius: 8px; overflow: hidden; display:flex; justify-content:center; align-items:center;">
                     <img id="crop-image-source" style="max-width: 100%; display: block;">
                 </div>
-                <div style="font-size: 12px; color: var(--text-sub); margin-top: 8px; text-align: center;">
-                    💡 提示：拖动白色边框调整大小，拖动中间移动选区，支持鼠标滚轮缩放。
-                </div>
+                <div style="font-size: 12px; color: var(--text-sub); margin-top: 8px; text-align: center;">💡 提示：拖动白色边框调整大小，拖动中间移动选区，支持鼠标滚轮缩放。</div>
             </div>
         </div>
-        <!-- ================= 模块 5: 长图拼接 (新增) ================= -->
+
+        <!-- 模块 5: 长图拼接 -->
         <div id="tab-stitch" class="tool-section">
             <div class="control-row">
                 <div class="input-group">
                     <label>1. 选择多张图片</label>
-                    <!-- 支持多选 -->
                     <div class="file-wrapper">
                         <input type="file" id="stitch-files" accept="image/*" multiple>
                         <div class="file-clear-btn" onclick="clearInput('stitch-files')">×</div>
                     </div>
                 </div>
-                
                 <div class="input-group">
                     <label>2. 拼接模式</label>
                     <select id="stitch-mode">
-                        <option value="vertical" selected>⬇️ 竖向拼接 (长图)</option>
-                        <option value="horizontal">➡️ 横向拼接 (对比)</option>
-                        <option value="grid">🪟 宫格拼接 (九宫格)</option>
+                        <option value="vertical" selected>⬇️ 竖向拼接</option>
+                        <option value="horizontal">➡️ 横向拼接</option>
+                        <option value="grid">🪟 宫格拼接</option>
                     </select>
                 </div>
-
                 <div class="input-group">
-                    <label>3. 间距 / 边框</label>
+                    <label>3. 间距</label>
                     <select id="stitch-gap">
                         <option value="0" selected>无间距</option>
-                        <option value="10">小间距 (10px)</option>
-                        <option value="20">大间距 (20px)</option>
+                        <option value="10">10px</option>
+                        <option value="20">20px</option>
                     </select>
                 </div>
-                
                 <div class="input-group" style="flex: 0;">
                     <label>&nbsp;</label>
                     <button class="action-btn" id="btn-run-stitch">开始拼接</button>
                 </div>
             </div>
-            
-            <div style="font-size: 12px; color: var(--text-sub); text-align:center;">
-                ℹ️ 说明：支持拖拽排序。竖向模式下，图片将自动缩放至统一宽度以整齐排列。
-            </div>
-
-            <!-- 排序与预览区域 -->
             <div id="stitch-container" style="display:none; margin-top:20px;">
-                <!-- 拖拽排序列表 -->
-                <div class="stitch-sort-area" id="stitch-sort-list">
-                    <!-- 缩略图会动态生成在这里 -->
-                </div>
+                <div class="stitch-sort-area" id="stitch-sort-list"></div>
                 <div style="text-align:center; margin:10px 0; color:#999; font-size:12px;">(可拖动图片调整顺序)</div>
             </div>
         </div>
 
-        <!-- 公用 Loading -->
+        <!-- 公用状态区 -->
         <div id="loading" class="loading">⏳ 正在处理中...</div>
-
-        <!-- 公用预览区 -->
         <div id="preview-area" class="preview-area" style="display: none;">
             <div class="preview-card" id="card-orig">
                 <div class="stats" id="stats-orig"></div>
@@ -239,9 +209,29 @@
         </div>
 
     </div>
-</div>
 
-<!-- === 智能图片库弹窗 (Modal) === -->
+    <!-- === 这里是 Footer  === -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-item">
+                <span id="greeting-text">👋 您好</span>
+                <span class="divider">|</span>
+                <span>🚀 稳定运行 <strong id="run-time">...</strong></span>
+            </div>
+            <div class="footer-item stats-badge">
+                <span>👀 浏览量<span id="busuanzi_value_site_pv" class="num-highlight">...</span></span>
+                <span class="divider">/</span>
+                <span>👤 访客数<span id="busuanzi_value_site_uv" class="num-highlight">...</span></span>
+            </div>
+        </div>
+        <div class="copyright">
+            &copy; 2026 Image Processing Workbench. All rights reserved.
+        </div>
+    </footer>
+
+</div> <!-- Container 结束 -->
+
+<!-- 弹窗 -->
 <div class="modal-overlay" id="upload-modal">
     <div class="modal-content">
         <div class="modal-header">
@@ -250,18 +240,14 @@
         </div>
         <div class="modal-body">
             <div class="upload-grid" id="thumb-grid">
-                <!-- 添加按钮 -->
                 <div class="upload-add-btn" id="btn-add-files">
                     <span style="font-size:24px;">+</span>
                     <span style="font-size:12px; margin-top:5px;">添加图片</span>
                 </div>
-                <!-- 缩略图动态插入 -->
             </div>
-            <!-- 隐藏的真实 input -->
             <input type="file" id="real-file-input" accept="image/*" multiple style="display:none">
         </div>
         <div class="modal-footer">
-            <!-- 清空按钮 -->
             <button class="ratio-btn" id="btn-clear-all" style="color:#ef4444; border-color:#ef4444; flex:0 0 auto;">🗑️ 清空全部</button>
             <div style="flex:1"></div>
             <button class="ratio-btn" id="btn-close-modal" style="flex:0 0 100px;">关闭</button>
@@ -270,7 +256,7 @@
     </div>
 </div>
 
-<!-- 引入主逻辑 -->
+<!-- 核心脚本 (一定要在最后) -->
 <script type="module" src="./js/main.js"></script>
 </body>
 </html>

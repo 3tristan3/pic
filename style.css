@@ -1,46 +1,35 @@
-/* style.css - Apple MacOS 风格重制版 */
 
-/* --- 1. 核心变量 (Apple Color Palette) --- */
+
+/* --- 1. 核心变量 --- */
 :root {
-    /* 浅色模式 (Light Mode) */
-    --bg-body: #F5F5F7;          /* Apple 经典的浅灰底色 */
-    --bg-card: #FFFFFF;          /* 纯白卡片 */
-    --bg-input: #eff1f5;         /* 输入框填充色 - 极浅灰 */
+    --bg-body: #F5F5F7;
+    --bg-card: #FFFFFF;
+    --bg-input: #eff1f5;
     --bg-input-hover: #e5e7eb;
-    --border-color: rgba(0, 0, 0, 0.08); /* 极淡的边框 */
-    
-    --text-main: #1D1D1F;        /* 近似黑色的深灰 */
-    --text-sub: #86868B;         /* Apple 风格副文本灰 */
-    
-    --primary: #0071E3;          /* Apple 官方蓝 */
+    --border-color: rgba(0, 0, 0, 0.08);
+    --text-main: #1D1D1F;
+    --text-sub: #86868B;
+    --primary: #0071E3;
     --primary-hover: #0077ED;
-    
-    --shadow-card: 0 12px 40px rgba(0, 0, 0, 0.08); /* 弥散柔光阴影 */
+    --shadow-card: 0 12px 40px rgba(0, 0, 0, 0.08);
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
-    
-    --radius-box: 20px;          /* 更大的圆角 */
-    --radius-input: 12px;        /* 控件圆角 */
-    
+    --radius-box: 20px;
+    --radius-input: 12px;
     --cropper-bg: #1c1c1e;
 }
 
-/* 深色模式 (Dark Mode - 参照 macOS Dark Mode) */
 body.dark-mode {
-    --bg-body: #000000;          /* 纯黑背景 */
-    --bg-card: #1C1C1E;          /* 深灰卡片 */
-    --bg-input: #2C2C2E;         /* 输入框深色填充 */
+    --bg-body: #000000;
+    --bg-card: #1C1C1E;
+    --bg-input: #2C2C2E;
     --bg-input-hover: #3A3A3C;
     --border-color: rgba(255, 255, 255, 0.1);
-    
     --text-main: #F5F5F7;
     --text-sub: #98989D;
-    
-    --primary: #0A84FF;          /* 深色模式下的亮蓝 */
+    --primary: #0A84FF;
     --primary-hover: #409CFF;
-    
     --shadow-card: 0 12px 40px rgba(0, 0, 0, 0.3);
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
-    
     --cropper-bg: #000000;
 }
 
@@ -48,381 +37,193 @@ body.dark-mode {
 html, body {
     margin: 0; padding: 0; width: 100%; min-height: 100vh;
     background-color: var(--bg-body);
-    /* 优先使用 Apple 系统字体 */
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
     color: var(--text-main);
-    transition: background-color 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-    -webkit-font-smoothing: antialiased; /* 让字体更细更清晰 */
+    transition: background-color 0.4s;
+    -webkit-font-smoothing: antialiased;
 }
 
-body { display: flex; justify-content: center; padding-top: 60px; box-sizing: border-box; }
+body {
+    padding-top: 60px;
+    padding-bottom: 40px; /* 底部留白 */
+    box-sizing: border-box;
+    display: block; 
+}
 
-/* 主容器 */
+
 .container {
     position: relative;
     background-color: var(--bg-card); 
     width: 90%; max-width: 980px;
+    margin: 0 auto; /* 水平居中 */
     border-radius: var(--radius-box); 
     box-shadow: var(--shadow-card);
-    margin-bottom: 60px; overflow: hidden; height: fit-content;
     border: 1px solid var(--border-color);
+    overflow: hidden; 
     transition: all 0.3s ease;
+    
+
+    display: flex;
+    flex-direction: column;
+
+    min-height: calc(100vh - 100px); 
 }
 
-/* 主题切换按钮 (胶囊风格) */
 .theme-toggle-btn {
-    position: absolute; top: 24px; right: 24px;
-    background: var(--bg-input); color: var(--text-main);
-    border: none;
-    padding: 8px 16px; border-radius: 20px; 
+    position: fixed; top: 20px; right: 20px;
+    background: var(--bg-card); color: var(--text-main);
+    border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 20px; 
     font-size: 12px; font-weight: 500; cursor: pointer;
-    display: flex; align-items: center; gap: 6px; 
-    transition: all 0.2s;
-    z-index: 10;
+    box-shadow: var(--shadow-sm); z-index: 100;
 }
-.theme-toggle-btn:hover { background: var(--bg-input-hover); transform: scale(1.02); }
 
 .header { text-align: center; padding: 45px 30px 30px; border-bottom: 1px solid var(--border-color); }
 h1 { margin: 0; font-size: 28px; font-weight: 700; color: var(--text-main); letter-spacing: -0.02em; }
 .subtitle { margin-top: 8px; color: var(--text-sub); font-size: 13px; font-weight: 400; }
 
-/* --- 3. iOS 风格分段导航 (Segmented Control) --- */
-.tabs {
-    display: flex; justify-content: center; 
-    background-color: var(--bg-card); /* 与卡片背景融合 */
-    padding: 20px 30px; 
-    gap: 0; /* 间隙由内部控制 */
-}
-
-/* 这是一个特殊的容器技巧，模拟 iOS 的灰色轨道 */
-.tabs::before {
-    /* 这里为了简化 HTML 结构，我们直接样式化 tabs 里的按钮，
-       如果是纯正 iOS 风格，通常外面包一层灰色 .track，
-       这里我们通过把 .tab-btn 变身来实现类似效果 */
-    display: none; 
-}
-
-/* 改造 tab-btn 为胶囊内的选项 */
+.tabs { display: flex; justify-content: center; background-color: var(--bg-card); padding: 20px 30px; gap: 0; }
 .tab-btn {
-    padding: 10px 24px; 
-    font-size: 14px; font-weight: 500; 
-    color: var(--text-sub);
-    background: transparent; 
-    border: none; cursor: pointer; 
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    position: relative;
-    border-radius: 20px; /* 独立胶囊 */
-    margin: 0 4px;
+    padding: 10px 24px; font-size: 14px; font-weight: 500; color: var(--text-sub);
+    background: transparent; border: none; cursor: pointer; 
+    transition: all 0.3s; position: relative; border-radius: 20px; margin: 0 4px;
 }
-
 .tab-btn:hover { color: var(--text-main); background: var(--bg-input); }
+.tab-btn.active { color: var(--text-main); background: var(--bg-input-hover); font-weight: 600; }
+body.dark-mode .tab-btn.active { background: #3A3A3C; color: #FFF; }
 
-/* 选中状态：白色卡片 + 阴影 */
-.tab-btn.active {
-    color: var(--text-main); /* 选中是深色文字，不是蓝色 */
-    background: var(--bg-input-hover); /* 模拟选中态背景 */
-    font-weight: 600;
-    /* Apple 风格通常不用下划线，而是用背景色差或文字加粗 */
-    /* 这里我们用更明显的背景色区分 */
+
+.workspace { 
+    padding: 40px; 
+    flex: 1; 
+    display: flex;
+    flex-direction: column;
 }
-/* 深色模式下的选中微调 */
-body.dark-mode .tab-btn.active {
-    background: #3A3A3C;
-    color: #FFF;
-}
-
-
-/* --- 4. 工作区 --- */
-.workspace { padding: 40px; min-height: 320px; }
-.tool-section { display: none; animation: fadeIn 0.4s ease; }
+.tool-section { display: none; animation: fadeIn 0.4s ease; width: 100%; }
 .tool-section.active { display: block; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Grid 布局 */
 .control-row {
-    display: grid; 
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 20px; align-items: end; margin-bottom: 30px; padding: 0;
-    /* 移除原来的灰色背景框，让控件直接浮在白色背景上，更通透 */
-    background: transparent; border: none; border-radius: 0;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px; align-items: end; margin-bottom: 30px;
 }
-
-/* 裁剪 Tab 布局 */
 .crop-grid { grid-template-columns: 1.2fr 1fr 2fr auto !important; }
 
 .input-group { display: flex; flex-direction: column; gap: 10px; }
-label { font-size: 12px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.02em; margin-left: 2px;}
+label { font-size: 12px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; margin-left: 2px;}
 
-/* --- 5. 控件美化 (Apple 风格填充式输入框) --- */
 input[type="file"], input[type="number"], select, .fake-file-btn {
-    height: 44px; 
-    background: var(--bg-input); /* 浅灰填充 */
-    border: 1px solid transparent; /* 默认无边框 */
-    border-radius: var(--radius-input);
-    box-sizing: border-box; 
-    font-size: 14px; color: var(--text-main);
-    transition: all 0.2s; width: 100%;
-    text-align: center; text-align-last: center;
-    box-shadow: none; /* 去掉阴影，扁平化 */
+    height: 44px; background: var(--bg-input);
+    border: 1px solid transparent; border-radius: var(--radius-input);
+    box-sizing: border-box; font-size: 14px; color: var(--text-main);
+    transition: all 0.2s; width: 100%; text-align: center; text-align-last: center;
+    box-shadow: none;
 }
-
-/* 聚焦时显示蓝色细边框 */
 input:focus, select:focus {
-    background: var(--bg-card); /* 聚焦变白/变深 */
-    border-color: var(--primary); 
-    box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.15); /* 柔和光晕 */
-    outline: none;
+    background: var(--bg-card); border-color: var(--primary); 
+    box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.15); outline: none;
 }
 
-/* 上传框 */
 input[type="file"] { padding: 4px; display: flex; align-items: center; text-align: left; cursor: pointer; }
 input[type="file"]::file-selector-button {
     height: 34px; margin-right: 12px; border: none;
-    background: var(--bg-card); /* 按钮背景色反转，形成对比 */
-    color: var(--text-main); border-radius: 8px;
+    background: var(--bg-card); color: var(--text-main); border-radius: 8px;
     padding: 0 14px; font-size: 13px; font-weight: 500; cursor: pointer;
-    line-height: 34px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* 给内部按钮加小阴影 */
+    line-height: 34px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
-
 .fake-file-btn {
     display: flex; align-items: center; justify-content: center;
     background: var(--bg-input); color: var(--primary); 
-    border: 1px dashed rgba(0, 113, 227, 0.3); /* 虚线也调淡 */
-    font-weight: 500; cursor: pointer;
+    border: 1px dashed rgba(0, 113, 227, 0.3); font-weight: 500; cursor: pointer;
 }
-.fake-file-btn:hover { background: rgba(0, 113, 227, 0.05); border-color: var(--primary); }
-
-/* 主操作按钮 (Apple Blue) */
 .action-btn {
     background: var(--primary); color: white; border: none; padding: 0 24px; height: 44px;
     border-radius: var(--radius-input); font-size: 14px; font-weight: 500; cursor: pointer; width: 100%;
     transition: all 0.2s;
 }
 .action-btn:hover { background: var(--primary-hover); transform: scale(1.01); }
-.action-btn:active { transform: scale(0.98); }
 
-/* 比例按钮组 */
 .btn-group { 
-    display: flex; background: var(--bg-input); padding: 3px; /* 内边距 */
-    border-radius: var(--radius-input); height: 44px; box-sizing: border-box;
-    border: none;
+    display: flex; background: var(--bg-input); padding: 3px;
+    border-radius: var(--radius-input); height: 44px; box-sizing: border-box; border: none;
 }
 .ratio-btn { 
     flex: 1; border: none; background: transparent; cursor: pointer; 
-    font-size: 13px; color: var(--text-sub); border-radius: 8px; 
-    font-weight: 500; margin: 0 1px;
+    font-size: 13px; color: var(--text-sub); border-radius: 8px; font-weight: 500; margin: 0 1px;
 }
-.ratio-btn:hover { color: var(--text-main); }
-.ratio-btn.active { 
-    background: var(--bg-card); /* 选中项变白 */
-    color: var(--text-main); 
-    box-shadow: 0 2px 5px rgba(0,0,0,0.08); /* 选中项浮起 */
-    font-weight: 600;
-}
+.ratio-btn.active { background: var(--bg-card); color: var(--text-main); box-shadow: 0 2px 5px rgba(0,0,0,0.08); font-weight: 600; }
 
-/* --- 6. 预览与弹窗 --- */
-.cropper-bg { background: var(--cropper-bg); }
-.preview-area { 
-    display: flex; gap: 30px; padding-top: 30px; 
-    border-top: 1px solid var(--border-color); flex-wrap: wrap; margin-top: 40px; 
+.file-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
+.file-clear-btn {
+    display: none; position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    width: 20px; height: 20px; border-radius: 50%;
+    background-color: rgba(142, 142, 147, 0.2); color: var(--text-sub);
+    font-size: 14px; line-height: 20px; text-align: center; cursor: pointer; z-index: 5;
 }
+.file-clear-btn:hover { background-color: rgba(142, 142, 147, 0.4); color: var(--text-main); }
+input[type="file"].has-file { padding-right: 40px; }
+
+.preview-area { display: flex; gap: 30px; padding-top: 30px; border-top: 1px solid var(--border-color); flex-wrap: wrap; margin-top: 40px; width: 100%; }
 .preview-card { 
     flex: 1; min-width: 300px; background: var(--bg-card); 
-    /* 去掉边框，改用柔和阴影 */
-    border: none; border-radius: 16px; 
-    padding: 24px; text-align: center;
-    box-shadow: var(--shadow-sm);
+    border: none; border-radius: 16px; padding: 24px; text-align: center; box-shadow: var(--shadow-sm);
 }
-.img-box { 
-    height: 320px; display: flex; align-items: center; justify-content: center; 
-    margin-top: 20px; border-radius: 12px; overflow: hidden; 
-    background: var(--bg-input); /* 浅灰底 */
-}
+.img-box { height: 320px; display: flex; align-items: center; justify-content: center; margin-top: 20px; border-radius: 12px; overflow: hidden; background: var(--bg-input); }
 .img-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
-.download-btn { 
-    display: inline-flex; margin-top: 25px; text-decoration: none; 
-    background-color: #34C759; /* Apple Green */
-    color: white; padding: 12px 30px; border-radius: 30px; 
-    font-size: 14px; font-weight: 500; transition: all 0.2s; 
-}
-.download-btn:hover { background-color: #30B753; transform: scale(1.02); }
-
 .loading { display: none; text-align: center; padding: 40px; color: var(--text-sub); font-size: 15px; }
+.download-btn { display: inline-flex; margin-top: 25px; text-decoration: none; background-color: #34C759; color: white; padding: 12px 30px; border-radius: 30px; font-size: 14px; font-weight: 500; }
 
-/* 弹窗 */
-.modal-overlay {
-    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.3); z-index: 1000; 
-    backdrop-filter: blur(10px); /* 强毛玻璃背景 */
-    -webkit-backdrop-filter: blur(10px);
-    justify-content: center; align-items: center;
+.stitch-sort-area {
+    display: flex; flex-wrap: wrap; gap: 10px; padding: 15px;
+    background: var(--bg-input); border-radius: 12px; border: 1px solid var(--border-color); min-height: 100px;
 }
-.modal-content {
-    background: var(--bg-card); width: 90%; max-width: 800px; height: 80vh;
-    border-radius: 20px; box-shadow: 0 40px 80px rgba(0, 0, 0, 0.15);
-    display: flex; flex-direction: column; overflow: hidden;
+.sort-item { position: relative; width: 80px; height: 80px; border-radius: 8px; overflow: hidden; cursor: grab; background: #fff; }
+.sort-item:hover { transform: scale(1.05); z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+.sort-item img { width: 100%; height: 100%; object-fit: cover; }
+.stitch-remove-btn {
+    position: absolute; top: 4px; right: 4px; width: 22px; height: 22px;
+    background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); color: #fff;
+    border-radius: 50%; display: none; align-items: center; justify-content: center; cursor: pointer; font-size: 14px;
 }
+.sort-item:hover .stitch-remove-btn { display: flex; }
+
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.3); z-index: 1000; backdrop-filter: blur(10px); justify-content: center; align-items: center; }
+.modal-content { background: var(--bg-card); width: 90%; max-width: 800px; height: 80vh; border-radius: 20px; box-shadow: 0 40px 80px rgba(0, 0, 0, 0.15); display: flex; flex-direction: column; overflow: hidden; }
 .modal-header { padding: 20px 30px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
-.modal-title { font-size: 18px; font-weight: 700; color: var(--text-main); }
-.modal-close { cursor: pointer; font-size: 24px; color: var(--text-sub); width: 30px; height: 30px; text-align: center; border-radius: 50%; background: var(--bg-input); line-height: 30px; }
-.modal-close:hover { background: var(--bg-input-hover); color: var(--text-main); }
-
 .modal-body { flex: 1; padding: 30px; overflow-y: auto; background: var(--bg-body); }
+.modal-footer { padding: 20px 30px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; gap: 15px; background: var(--bg-card); }
 .upload-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 20px; }
-.upload-add-btn {
-    border: 2px dashed var(--border-color); border-radius: 12px; background: var(--bg-card);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    min-height: 140px; cursor: pointer; color: var(--text-sub);
-}
-.upload-add-btn:hover { border-color: var(--primary); color: var(--primary); }
+.upload-add-btn { border: 2px dashed var(--border-color); border-radius: 12px; background: var(--bg-card); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 140px; cursor: pointer; color: var(--text-sub); }
 .thumb-item { position: relative; border-radius: 12px; overflow: hidden; height: 140px; background: var(--bg-card); box-shadow: var(--shadow-sm); }
 .thumb-item img { width: 100%; height: 100%; object-fit: cover; }
-.thumb-remove {
-    position: absolute; top: 8px; right: 8px; width: 24px; height: 24px;
-    background: rgba(0,0,0,0.5); color: #fff; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; backdrop-filter: blur(4px);
-}
-.thumb-remove:hover { background: #FF3B30; /* Apple Red */ }
-.modal-footer { padding: 20px 30px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; gap: 15px; background: var(--bg-card); }
+.thumb-remove { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: rgba(0,0,0,0.5); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; backdrop-filter: blur(4px); }
 
-/* 9. 移动端适配 */
+/* --- Footer (固定在底部) --- */
+.site-footer {
+
+    margin-top: 0; 
+    padding: 20px 0 30px 0;
+    text-align: center;
+    color: var(--text-sub);
+    font-size: 13px;
+    border-top: 1px solid var(--border-color);
+    background: var(--bg-card);
+    width: 100%;
+}
+.footer-content { display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap; margin-bottom: 10px; }
+.footer-item { background: var(--bg-input); border: 1px solid transparent; padding: 6px 14px; border-radius: 20px; display: inline-flex; align-items: center; gap: 8px; }
+.num-highlight { color: var(--primary); font-family: ui-monospace, monospace; font-weight: 700; margin-left: 4px; }
+.divider { color: var(--border-color); font-size: 10px; margin: 0 5px; }
+.loading-dots { animation: blink 1.5s infinite; }
+@keyframes blink { 0% { opacity: .2; } 20% { opacity: 1; } 100% { opacity: .2; } }
+
+/* 移动端适配 */
 @media (max-width: 768px) {
-    .container { width: 100%; border-radius: 0; border: none; min-height: 100vh; margin-bottom: 0; box-shadow: none; }
-    .header { padding: 40px 20px 20px; }
+    body { padding: 20px 0; }
+    .container { width: 100%; border-radius: 0; border: none; min-height: 100vh; box-shadow: none; }
+    .header { padding: 30px 20px 10px; }
     .tabs { padding: 10px 20px; overflow-x: auto; justify-content: flex-start; }
     .tab-btn { flex: 0 0 auto; white-space: nowrap; }
     .control-row { grid-template-columns: 1fr !important; gap: 20px; }
     .modal-content { width: 100%; height: 100%; border-radius: 0; }
-}
-/* --- 输入框内部清除键 --- */
-.file-wrapper {
-    position: relative;
-    width: 100%;
-    display: flex;
-    align-items: center;
-}
-
-.file-clear-btn {
-    display: none; /* 默认隐藏 */
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background-color: rgba(142, 142, 147, 0.2); /* iOS 风格淡灰 */
-    color: var(--text-sub);
-    font-size: 14px;
-    line-height: 20px; /* 垂直居中文字 */
-    text-align: center;
-    cursor: pointer;
-    z-index: 5;
-    transition: all 0.2s;
-}
-
-.file-clear-btn:hover {
-    background-color: rgba(142, 142, 147, 0.4);
-    color: var(--text-main);
-}
-
-input[type="file"].has-file {
-    padding-right: 40px;
-}
-/* --- 长图拼接样式 --- */
-
-/* 排序列表容器 */
-.stitch-sort-area {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    padding: 15px;
-    background: var(--bg-input);
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
-    min-height: 100px;
-}
-
-/* 单个可拖拽图片项 */
-.sort-item {
-    position: relative;
-    width: 80px;
-    height: 80px;
-    border-radius: 8px;
-    overflow: hidden;
-    cursor: grab;
-    border: 2px solid transparent;
-    transition: transform 0.2s, box-shadow 0.2s;
-    background: #fff;
-}
-.sort-item:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    z-index: 10;
-}
-.sort-item.dragging {
-    opacity: 0.5;
-    border-color: var(--primary);
-}
-
-.sort-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    pointer-events: none; /* 防止拖拽图片本身干扰拖拽事件 */
-}
-
-/* 序号角标 */
-.sort-index {
-    position: absolute;
-    top: 0; left: 0;
-    background: rgba(0,0,0,0.6);
-    color: white;
-    font-size: 10px;
-    padding: 2px 6px;
-    border-bottom-right-radius: 6px;
-}
-/* 新增：拼图单张删除按钮 (Apple 风格 - 半透明磨砂) */
-.stitch-remove-btn {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    width: 22px;
-    height: 22px;
-    
-    /* 核心修改：半透明黑底 + 模糊 (磨砂感) */
-    background: rgba(0, 0, 0, 0.5); 
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    
-    color: rgba(255, 255, 255, 0.9);
-    border-radius: 50%;
-    
-    /* 文字居中 */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    
-    font-size: 14px;
-    font-weight: 400; /* 不需要太粗 */
-    line-height: 1;
-    
-    cursor: pointer;
-    z-index: 20;
-    
-    /* 默认显示，但在非 Hover 状态下稍微透明一点，或者您可以保留 display:none */
-    display: none; 
-    transition: all 0.2s ease;
-}
-
-/* 悬停在图片上时显示 */
-.sort-item:hover .stitch-remove-btn {
-    display: flex;
-    animation: fadeIn 0.2s ease; /* 淡入效果 */
-}
-
-/* 鼠标悬停在按钮上时，变深一点，提示可点击 */
-.stitch-remove-btn:hover {
-    background: rgba(0, 0, 0, 0.75);
-    transform: scale(1.1);
+    .footer-content { flex-direction: column; gap: 10px; }
 }
