@@ -1,180 +1,331 @@
-/* style.css - 深浅双色主题版 */
+/* style.css - Apple MacOS 风格重制版 */
 
-/* --- 1. 核心变量定义 --- */
+/* --- 1. 核心变量 (Apple Color Palette) --- */
 :root {
-    /* 浅色模式 (默认) */
-    --bg-body: #f4f6f8;
-    --bg-card: #ffffff;
-    --bg-input: #ffffff;
-    --bg-input-btn: #eef2f6;
-    --bg-hover: #f0f2f5;
-    --border-color: #dcdfe6;
-    --text-main: #333333;
-    --text-sub: #606266;
-    --primary: #0d6efd;
-    --primary-hover: #0b5ed7;
-    --shadow: 0 4px 20px rgba(0,0,0,0.06);
-    --cropper-bg: #212529;
+    /* 浅色模式 (Light Mode) */
+    --bg-body: #F5F5F7;          /* Apple 经典的浅灰底色 */
+    --bg-card: #FFFFFF;          /* 纯白卡片 */
+    --bg-input: #eff1f5;         /* 输入框填充色 - 极浅灰 */
+    --bg-input-hover: #e5e7eb;
+    --border-color: rgba(0, 0, 0, 0.08); /* 极淡的边框 */
+    
+    --text-main: #1D1D1F;        /* 近似黑色的深灰 */
+    --text-sub: #86868B;         /* Apple 风格副文本灰 */
+    
+    --primary: #0071E3;          /* Apple 官方蓝 */
+    --primary-hover: #0077ED;
+    
+    --shadow-card: 0 12px 40px rgba(0, 0, 0, 0.08); /* 弥散柔光阴影 */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+    
+    --radius-box: 20px;          /* 更大的圆角 */
+    --radius-input: 12px;        /* 控件圆角 */
+    
+    --cropper-bg: #1c1c1e;
 }
 
-/* 深色模式 (Dark Mode) */
+/* 深色模式 (Dark Mode - 参照 macOS Dark Mode) */
 body.dark-mode {
-    --bg-body: #111827;
-    --bg-card: #1f2937;
-    --bg-input: #374151;
-    --bg-input-btn: #4b5563;
-    --bg-hover: #374151;
-    --border-color: #4b5563;
-    --text-main: #f9fafb;
-    --text-sub: #d1d5db;
-    --primary: #3b82f6;
-    --primary-hover: #2563eb;
-    --shadow: 0 4px 20px rgba(0,0,0,0.3);
+    --bg-body: #000000;          /* 纯黑背景 */
+    --bg-card: #1C1C1E;          /* 深灰卡片 */
+    --bg-input: #2C2C2E;         /* 输入框深色填充 */
+    --bg-input-hover: #3A3A3C;
+    --border-color: rgba(255, 255, 255, 0.1);
+    
+    --text-main: #F5F5F7;
+    --text-sub: #98989D;
+    
+    --primary: #0A84FF;          /* 深色模式下的亮蓝 */
+    --primary-hover: #409CFF;
+    
+    --shadow-card: 0 12px 40px rgba(0, 0, 0, 0.3);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+    
     --cropper-bg: #000000;
 }
 
-/* --- 2. 全局样式 --- */
+/* --- 2. 全局布局 --- */
 html, body {
     margin: 0; padding: 0; width: 100%; min-height: 100vh;
     background-color: var(--bg-body);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    /* 优先使用 Apple 系统字体 */
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
     color: var(--text-main);
-    transition: background-color 0.3s, color 0.3s; /* 丝滑切换动画 */
+    transition: background-color 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    -webkit-font-smoothing: antialiased; /* 让字体更细更清晰 */
 }
-body { display: flex; justify-content: center; padding-top: 40px; box-sizing: border-box; }
+
+body { display: flex; justify-content: center; padding-top: 60px; box-sizing: border-box; }
 
 /* 主容器 */
 .container {
     position: relative;
-    background-color: var(--bg-card); width: 92%; max-width: 1000px;
-    border-radius: 16px; box-shadow: var(--shadow);
-    margin-bottom: 50px; overflow: hidden; height: fit-content;
+    background-color: var(--bg-card); 
+    width: 90%; max-width: 980px;
+    border-radius: var(--radius-box); 
+    box-shadow: var(--shadow-card);
+    margin-bottom: 60px; overflow: hidden; height: fit-content;
     border: 1px solid var(--border-color);
-    transition: background-color 0.3s, border-color 0.3s;
+    transition: all 0.3s ease;
 }
 
-/* 主题切换按钮 (右上角) */
+/* 主题切换按钮 (胶囊风格) */
 .theme-toggle-btn {
-    position: absolute; top: 20px; right: 20px;
-    background: var(--bg-input-btn); color: var(--text-main);
-    border: 1px solid var(--border-color);
-    padding: 8px 12px; border-radius: 20px; font-size: 13px; cursor: pointer;
-    display: flex; align-items: center; gap: 5px; transition: all 0.2s;
+    position: absolute; top: 24px; right: 24px;
+    background: var(--bg-input); color: var(--text-main);
+    border: none;
+    padding: 8px 16px; border-radius: 20px; 
+    font-size: 12px; font-weight: 500; cursor: pointer;
+    display: flex; align-items: center; gap: 6px; 
+    transition: all 0.2s;
+    z-index: 10;
 }
-.theme-toggle-btn:hover { opacity: 0.8; }
+.theme-toggle-btn:hover { background: var(--bg-input-hover); transform: scale(1.02); }
 
-.header { text-align: center; padding: 25px 30px; border-bottom: 1px solid var(--border-color); }
-h1 { margin: 0; font-size: 20px; font-weight: 700; color: var(--text-main); }
-.subtitle { margin-top: 6px; color: var(--text-sub); font-size: 12px; }
+.header { text-align: center; padding: 45px 30px 30px; border-bottom: 1px solid var(--border-color); }
+h1 { margin: 0; font-size: 28px; font-weight: 700; color: var(--text-main); letter-spacing: -0.02em; }
+.subtitle { margin-top: 8px; color: var(--text-sub); font-size: 13px; font-weight: 400; }
 
-/* --- 3. 导航 Tabs --- */
-.tabs { display: flex; background-color: var(--bg-hover); padding: 0 10px; border-bottom: 1px solid var(--border-color); gap: 5px; }
+/* --- 3. iOS 风格分段导航 (Segmented Control) --- */
+.tabs {
+    display: flex; justify-content: center; 
+    background-color: var(--bg-card); /* 与卡片背景融合 */
+    padding: 20px 30px; 
+    gap: 0; /* 间隙由内部控制 */
+}
+
+/* 这是一个特殊的容器技巧，模拟 iOS 的灰色轨道 */
+.tabs::before {
+    /* 这里为了简化 HTML 结构，我们直接样式化 tabs 里的按钮，
+       如果是纯正 iOS 风格，通常外面包一层灰色 .track，
+       这里我们通过把 .tab-btn 变身来实现类似效果 */
+    display: none; 
+}
+
+/* 改造 tab-btn 为胶囊内的选项 */
 .tab-btn {
-    padding: 16px 20px; font-size: 14px; font-weight: 600; color: var(--text-sub);
-    background: none; border: none; cursor: pointer; transition: all 0.2s; border-radius: 8px 8px 0 0;
+    padding: 10px 24px; 
+    font-size: 14px; font-weight: 500; 
+    color: var(--text-sub);
+    background: transparent; 
+    border: none; cursor: pointer; 
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    border-radius: 20px; /* 独立胶囊 */
+    margin: 0 4px;
 }
-.tab-btn:hover { color: var(--text-main); background: rgba(0,0,0,0.05); }
-.tab-btn.active { color: var(--primary); background: var(--bg-card); box-shadow: 0 -2px 0 0 var(--primary) inset; }
+
+.tab-btn:hover { color: var(--text-main); background: var(--bg-input); }
+
+/* 选中状态：白色卡片 + 阴影 */
+.tab-btn.active {
+    color: var(--text-main); /* 选中是深色文字，不是蓝色 */
+    background: var(--bg-input-hover); /* 模拟选中态背景 */
+    font-weight: 600;
+    /* Apple 风格通常不用下划线，而是用背景色差或文字加粗 */
+    /* 这里我们用更明显的背景色区分 */
+}
+/* 深色模式下的选中微调 */
+body.dark-mode .tab-btn.active {
+    background: #3A3A3C;
+    color: #FFF;
+}
+
 
 /* --- 4. 工作区 --- */
-.workspace { padding: 30px; min-height: 300px; }
-.tool-section { display: none; animation: fadeIn 0.3s ease; }
+.workspace { padding: 40px; min-height: 320px; }
+.tool-section { display: none; animation: fadeIn 0.4s ease; }
 .tool-section.active { display: block; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Grid 布局 (针对裁剪 Tab 做了特殊优化) */
+/* Grid 布局 */
 .control-row {
     display: grid; 
-    /* 默认布局 */
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 15px; align-items: end; margin-bottom: 25px; padding: 20px;
-    background: var(--bg-hover); border-radius: 10px; border: 1px solid var(--border-color);
+    gap: 20px; align-items: end; margin-bottom: 30px; padding: 0;
+    /* 移除原来的灰色背景框，让控件直接浮在白色背景上，更通透 */
+    background: transparent; border: none; border-radius: 0;
 }
 
-/* 裁剪 Tab 的特殊布局：给上传框更多空间，防止文字显示不全 */
-.crop-grid {
-    /* 左侧两列(上传+格式)稍微窄一点，中间比例宽一点，按钮自适应 */
-    grid-template-columns: 1.2fr 1fr 2fr auto !important; 
-}
+/* 裁剪 Tab 布局 */
+.crop-grid { grid-template-columns: 1.2fr 1fr 2fr auto !important; }
 
-.input-group { display: flex; flex-direction: column; gap: 8px; }
-label { font-size: 12px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; }
+.input-group { display: flex; flex-direction: column; gap: 10px; }
+label { font-size: 12px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.02em; margin-left: 2px;}
 
-/* --- 5. 控件美化 --- */
+/* --- 5. 控件美化 (Apple 风格填充式输入框) --- */
 input[type="file"], input[type="number"], select, .fake-file-btn {
-    height: 40px; background: var(--bg-input); border: 1px solid var(--border-color);
-    border-radius: 6px; box-sizing: border-box; font-size: 14px; color: var(--text-main);
-    transition: all 0.2s; width: 100%; text-align: center; text-align-last: center;
+    height: 44px; 
+    background: var(--bg-input); /* 浅灰填充 */
+    border: 1px solid transparent; /* 默认无边框 */
+    border-radius: var(--radius-input);
+    box-sizing: border-box; 
+    font-size: 14px; color: var(--text-main);
+    transition: all 0.2s; width: 100%;
+    text-align: center; text-align-last: center;
+    box-shadow: none; /* 去掉阴影，扁平化 */
 }
-input:focus, select:focus { border-color: var(--primary); outline: none; }
 
-/* 修复上传框文字显示不全：缩小内部按钮字号，减少 Padding */
-input[type="file"] {
-    padding: 3px; display: flex; align-items: center; text-align: left; cursor: pointer;
+/* 聚焦时显示蓝色细边框 */
+input:focus, select:focus {
+    background: var(--bg-card); /* 聚焦变白/变深 */
+    border-color: var(--primary); 
+    box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.15); /* 柔和光晕 */
+    outline: none;
 }
+
+/* 上传框 */
+input[type="file"] { padding: 4px; display: flex; align-items: center; text-align: left; cursor: pointer; }
 input[type="file"]::file-selector-button {
-    height: 32px; margin-right: 8px; border: none;
-    background: var(--bg-input-btn); color: var(--text-main); border-radius: 4px;
-    padding: 0 10px; /* 减小左右间距 */
-    font-size: 12px; /* 缩小字号 */
-    font-weight: 600; cursor: pointer; line-height: 32px;
+    height: 34px; margin-right: 12px; border: none;
+    background: var(--bg-card); /* 按钮背景色反转，形成对比 */
+    color: var(--text-main); border-radius: 8px;
+    padding: 0 14px; font-size: 13px; font-weight: 500; cursor: pointer;
+    line-height: 34px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* 给内部按钮加小阴影 */
 }
 
 .fake-file-btn {
     display: flex; align-items: center; justify-content: center;
-    background: var(--bg-input-btn); color: var(--primary); border: 1px dashed var(--primary); font-weight: 600; cursor: pointer;
+    background: var(--bg-input); color: var(--primary); 
+    border: 1px dashed rgba(0, 113, 227, 0.3); /* 虚线也调淡 */
+    font-weight: 500; cursor: pointer;
 }
+.fake-file-btn:hover { background: rgba(0, 113, 227, 0.05); border-color: var(--primary); }
 
-/* 按钮 */
+/* 主操作按钮 (Apple Blue) */
 .action-btn {
-    background: var(--primary); color: white; border: none; padding: 0 20px; height: 40px;
-    border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%;
+    background: var(--primary); color: white; border: none; padding: 0 24px; height: 44px;
+    border-radius: var(--radius-input); font-size: 14px; font-weight: 500; cursor: pointer; width: 100%;
+    transition: all 0.2s;
 }
-.action-btn:hover { background: var(--primary-hover); }
+.action-btn:hover { background: var(--primary-hover); transform: scale(1.01); }
+.action-btn:active { transform: scale(0.98); }
 
 /* 比例按钮组 */
-.btn-group { display: flex; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; height: 40px; }
-.ratio-btn { flex: 1; border: none; background: transparent; cursor: pointer; font-size: 13px; color: var(--text-sub); border-right: 1px solid var(--border-color); }
-.ratio-btn:last-child { border-right: none; }
-.ratio-btn.active { background: var(--bg-input-btn); color: var(--primary); font-weight: 700; }
-.ratio-btn:hover { background: var(--bg-hover); color: var(--text-main); }
+.btn-group { 
+    display: flex; background: var(--bg-input); padding: 3px; /* 内边距 */
+    border-radius: var(--radius-input); height: 44px; box-sizing: border-box;
+    border: none;
+}
+.ratio-btn { 
+    flex: 1; border: none; background: transparent; cursor: pointer; 
+    font-size: 13px; color: var(--text-sub); border-radius: 8px; 
+    font-weight: 500; margin: 0 1px;
+}
+.ratio-btn:hover { color: var(--text-main); }
+.ratio-btn.active { 
+    background: var(--bg-card); /* 选中项变白 */
+    color: var(--text-main); 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08); /* 选中项浮起 */
+    font-weight: 600;
+}
 
 /* --- 6. 预览与弹窗 --- */
 .cropper-bg { background: var(--cropper-bg); }
-.preview-area { display: flex; gap: 30px; padding-top: 30px; border-top: 1px dashed var(--border-color); flex-wrap: wrap; margin-top: 30px; }
-.preview-card { flex: 1; min-width: 300px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; text-align: center; }
-.img-box { height: 320px; display: flex; align-items: center; justify-content: center; margin-top: 15px; border-radius: 8px; overflow: hidden; background: var(--bg-hover); border: 1px solid var(--border-color); }
+.preview-area { 
+    display: flex; gap: 30px; padding-top: 30px; 
+    border-top: 1px solid var(--border-color); flex-wrap: wrap; margin-top: 40px; 
+}
+.preview-card { 
+    flex: 1; min-width: 300px; background: var(--bg-card); 
+    /* 去掉边框，改用柔和阴影 */
+    border: none; border-radius: 16px; 
+    padding: 24px; text-align: center;
+    box-shadow: var(--shadow-sm);
+}
+.img-box { 
+    height: 320px; display: flex; align-items: center; justify-content: center; 
+    margin-top: 20px; border-radius: 12px; overflow: hidden; 
+    background: var(--bg-input); /* 浅灰底 */
+}
 .img-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
-.download-btn { display: inline-flex; margin-top: 20px; text-decoration: none; background-color: #10b981; color: white; padding: 10px 30px; border-radius: 6px; font-size: 14px; font-weight: 600; }
-.loading { display: none; text-align: center; padding: 30px; color: var(--primary); }
+.download-btn { 
+    display: inline-flex; margin-top: 25px; text-decoration: none; 
+    background-color: #34C759; /* Apple Green */
+    color: white; padding: 12px 30px; border-radius: 30px; 
+    font-size: 14px; font-weight: 500; transition: all 0.2s; 
+}
+.download-btn:hover { background-color: #30B753; transform: scale(1.02); }
+
+.loading { display: none; text-align: center; padding: 40px; color: var(--text-sub); font-size: 15px; }
 
 /* 弹窗 */
 .modal-overlay {
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.6); z-index: 1000; backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.3); z-index: 1000; 
+    backdrop-filter: blur(10px); /* 强毛玻璃背景 */
+    -webkit-backdrop-filter: blur(10px);
     justify-content: center; align-items: center;
 }
 .modal-content {
     background: var(--bg-card); width: 90%; max-width: 800px; height: 80vh;
-    border-radius: 12px; display: flex; flex-direction: column; overflow: hidden;
-    border: 1px solid var(--border-color);
+    border-radius: 20px; box-shadow: 0 40px 80px rgba(0, 0, 0, 0.15);
+    display: flex; flex-direction: column; overflow: hidden;
 }
-.modal-header { padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+.modal-header { padding: 20px 30px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
 .modal-title { font-size: 18px; font-weight: 700; color: var(--text-main); }
-.modal-close { cursor: pointer; font-size: 24px; color: var(--text-sub); }
-.modal-body { flex: 1; padding: 20px; overflow-y: auto; background: var(--bg-hover); }
-.upload-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; }
+.modal-close { cursor: pointer; font-size: 24px; color: var(--text-sub); width: 30px; height: 30px; text-align: center; border-radius: 50%; background: var(--bg-input); line-height: 30px; }
+.modal-close:hover { background: var(--bg-input-hover); color: var(--text-main); }
 
+.modal-body { flex: 1; padding: 30px; overflow-y: auto; background: var(--bg-body); }
+.upload-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 20px; }
 .upload-add-btn {
-    border: 2px dashed var(--border-color); border-radius: 8px; background: var(--bg-card);
+    border: 2px dashed var(--border-color); border-radius: 12px; background: var(--bg-card);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    min-height: 120px; cursor: pointer; color: var(--text-sub);
+    min-height: 140px; cursor: pointer; color: var(--text-sub);
 }
-.thumb-item { position: relative; border-radius: 8px; overflow: hidden; height: 120px; background: var(--bg-card); border: 1px solid var(--border-color); }
+.upload-add-btn:hover { border-color: var(--primary); color: var(--primary); }
+.thumb-item { position: relative; border-radius: 12px; overflow: hidden; height: 140px; background: var(--bg-card); box-shadow: var(--shadow-sm); }
 .thumb-item img { width: 100%; height: 100%; object-fit: cover; }
 .thumb-remove {
-    position: absolute; top: 5px; right: 5px; width: 20px; height: 20px;
-    background: rgba(0,0,0,0.6); color: #fff; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer;
+    position: absolute; top: 8px; right: 8px; width: 24px; height: 24px;
+    background: rgba(0,0,0,0.5); color: #fff; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; backdrop-filter: blur(4px);
 }
-.modal-footer { padding: 20px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; gap: 10px; background: var(--bg-card); }
+.thumb-remove:hover { background: #FF3B30; /* Apple Red */ }
+.modal-footer { padding: 20px 30px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; gap: 15px; background: var(--bg-card); }
+
+/* 9. 移动端适配 */
+@media (max-width: 768px) {
+    .container { width: 100%; border-radius: 0; border: none; min-height: 100vh; margin-bottom: 0; box-shadow: none; }
+    .header { padding: 40px 20px 20px; }
+    .tabs { padding: 10px 20px; overflow-x: auto; justify-content: flex-start; }
+    .tab-btn { flex: 0 0 auto; white-space: nowrap; }
+    .control-row { grid-template-columns: 1fr !important; gap: 20px; }
+    .modal-content { width: 100%; height: 100%; border-radius: 0; }
+}
+/* --- 输入框内部清除键 --- */
+.file-wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.file-clear-btn {
+    display: none; /* 默认隐藏 */
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: rgba(142, 142, 147, 0.2); /* iOS 风格淡灰 */
+    color: var(--text-sub);
+    font-size: 14px;
+    line-height: 20px; /* 垂直居中文字 */
+    text-align: center;
+    cursor: pointer;
+    z-index: 5;
+    transition: all 0.2s;
+}
+
+.file-clear-btn:hover {
+    background-color: rgba(142, 142, 147, 0.4);
+    color: var(--text-main);
+}
+
+input[type="file"].has-file {
+    padding-right: 40px;
+}

@@ -312,3 +312,58 @@ document.getElementById('btn-run-crop').addEventListener('click', async () => {
         } catch (error) { alert(error.message); showLoading(false); }
     }, 50);
 });
+// ============================================================
+// Y. 输入框清除逻辑 (通用)
+// ============================================================
+
+// 1. 全局清除函数 (暴露给 HTML onclick 使用)
+window.clearInput = function(inputId) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+
+    // 清空值
+    input.value = '';
+    
+    // 触发样式更新
+    toggleClearBtn(input);
+
+    // 特殊处理：如果是裁剪页面，还要隐藏编辑器
+    if (inputId === 'crop-file') {
+        document.getElementById('crop-editor-container').style.display = 'none';
+        // 销毁裁剪实例
+        import('./crop.js').then(module => {
+            // 这里我们简单刷新一下裁剪器状态，或者直接隐藏即可
+            // 因为下次 change 会重新 init
+        });
+    }
+    
+    // 隐藏预览区 (如果正好显示的是这张图的结果)
+    document.getElementById('preview-area').style.display = 'none';
+};
+
+// 2. 监听所有 file input，控制 X 号的显示
+document.querySelectorAll('input[type="file"]').forEach(input => {
+    // 排除掉那个隐藏的 real-file-input
+    if (input.id === 'real-file-input') return;
+
+    input.addEventListener('change', function() {
+        toggleClearBtn(this);
+    });
+});
+
+// 辅助函数：控制 X 号显示/隐藏
+function toggleClearBtn(input) {
+    const wrapper = input.parentElement;
+    // 找到同级的 clear-btn
+    const btn = wrapper.querySelector('.file-clear-btn');
+    
+    if (btn) {
+        if (input.files && input.files.length > 0) {
+            btn.style.display = 'block'; // 有文件 -> 显示
+            input.classList.add('has-file'); // 增加右侧内边距
+        } else {
+            btn.style.display = 'none';  // 无文件 -> 隐藏
+            input.classList.remove('has-file');
+        }
+    }
+}

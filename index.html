@@ -67,12 +67,16 @@
             </div>
         </div>
 
-        <!-- ================= 模块 2: 格式转换 ================= -->
+        <!-- 模块 2: 格式转换 -->
         <div id="tab-convert" class="tool-section">
             <div class="control-row">
                 <div class="input-group">
                     <label>1. 选择图片</label>
-                    <input type="file" id="convert-file" accept="image/*">
+                    <!-- 修改：增加了 file-wrapper 包裹和清除按钮 -->
+                    <div class="file-wrapper">
+                        <input type="file" id="convert-file" accept="image/*">
+                        <div class="file-clear-btn" onclick="clearInput('convert-file')">×</div>
+                    </div>
                 </div>
                 <div class="input-group">
                     <label>2. 目标格式</label>
@@ -92,12 +96,17 @@
             </div>
         </div>
 
-        <!-- ================= 模块 3: 图片放大 ================= -->
+
+        <!-- 模块 3: 图片放大 -->
         <div id="tab-upscale" class="tool-section">
             <div class="control-row">
                 <div class="input-group">
                     <label>1. 选择图片</label>
-                    <input type="file" id="upscale-file" accept="image/*">
+                    <!-- 修改：增加了 file-wrapper 包裹和清除按钮 -->
+                    <div class="file-wrapper">
+                        <input type="file" id="upscale-file" accept="image/*">
+                        <div class="file-clear-btn" onclick="clearInput('upscale-file')">×</div>
+                    </div>
                 </div>
                 <div class="input-group">
                     <label>2. 放大倍数</label>
@@ -117,13 +126,16 @@
             </div>
         </div>
 
-        <!-- ================= 模块 4: 图片裁剪 (优化布局) ================= -->
+        <!-- 模块 4: 图片裁剪 -->
         <div id="tab-canvas" class="tool-section">
-            <!-- crop-grid 类名用于修复文字显示不全 -->
             <div class="control-row crop-grid">
                 <div class="input-group">
                     <label>1. 上传图片</label>
-                    <input type="file" id="crop-file" accept="image/*">
+                    <!-- 修改：增加了 file-wrapper 包裹和清除按钮 -->
+                    <div class="file-wrapper">
+                        <input type="file" id="crop-file" accept="image/*">
+                        <div class="file-clear-btn" onclick="clearInput('crop-file')">×</div>
+                    </div>
                 </div>
                 <div class="input-group">
                     <label>2. 输出格式</label>
