@@ -329,3 +329,100 @@ input[type="file"]::file-selector-button {
 input[type="file"].has-file {
     padding-right: 40px;
 }
+/* --- 长图拼接样式 --- */
+
+/* 排序列表容器 */
+.stitch-sort-area {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 15px;
+    background: var(--bg-input);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    min-height: 100px;
+}
+
+/* 单个可拖拽图片项 */
+.sort-item {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: grab;
+    border: 2px solid transparent;
+    transition: transform 0.2s, box-shadow 0.2s;
+    background: #fff;
+}
+.sort-item:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    z-index: 10;
+}
+.sort-item.dragging {
+    opacity: 0.5;
+    border-color: var(--primary);
+}
+
+.sort-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none; /* 防止拖拽图片本身干扰拖拽事件 */
+}
+
+/* 序号角标 */
+.sort-index {
+    position: absolute;
+    top: 0; left: 0;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-bottom-right-radius: 6px;
+}
+/* 新增：拼图单张删除按钮 (Apple 风格 - 半透明磨砂) */
+.stitch-remove-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 22px;
+    height: 22px;
+    
+    /* 核心修改：半透明黑底 + 模糊 (磨砂感) */
+    background: rgba(0, 0, 0, 0.5); 
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    
+    color: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    
+    /* 文字居中 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    font-size: 14px;
+    font-weight: 400; /* 不需要太粗 */
+    line-height: 1;
+    
+    cursor: pointer;
+    z-index: 20;
+    
+    /* 默认显示，但在非 Hover 状态下稍微透明一点，或者您可以保留 display:none */
+    display: none; 
+    transition: all 0.2s ease;
+}
+
+/* 悬停在图片上时显示 */
+.sort-item:hover .stitch-remove-btn {
+    display: flex;
+    animation: fadeIn 0.2s ease; /* 淡入效果 */
+}
+
+/* 鼠标悬停在按钮上时，变深一点，提示可点击 */
+.stitch-remove-btn:hover {
+    background: rgba(0, 0, 0, 0.75);
+    transform: scale(1.1);
+}

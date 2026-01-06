@@ -6,10 +6,11 @@ import { processConvert } from './convert.js';
 import { processUpscale } from './upscale.js';
 import { processBatch } from './batch.js';
 import { initCropper, getCroppedBlob, setCropRatio } from './crop.js';
+import { processStitch } from './stitch.js';
 
 // --- 全局变量：存储批量上传的文件 ---
 let globalBatchFiles = [];
-
+let stitchFiles = []; 
 // ============================================================
 // X. 深色模式切换逻辑 (新增)
 // ============================================================
@@ -35,6 +36,7 @@ if (themeBtn) {
 // ============================================================
 // Tab 切换逻辑
 // ============================================================
+// --- Tab 切换逻辑 ---
 const tabs = document.querySelectorAll('.tab-btn');
 const sections = document.querySelectorAll('.tool-section');
 
@@ -47,16 +49,28 @@ tabs.forEach(btn => {
         const targetId = btn.getAttribute('data-target');
         document.getElementById(targetId).classList.add('active');
 
-        // 清理界面
+        // --- 通用清理 ---
         showLoading(false);
         document.getElementById('preview-area').style.display = 'none';
         document.getElementById('batch-progress').style.display = 'none';
-        
-        // 恢复裁剪Tab可能隐藏的原图
         document.getElementById('card-orig').style.display = 'block';
+
+        // --- 新增：长图拼接清理逻辑
+        // 1. 清空拼图数组
+        stitchFiles = []; 
+        // 2. 隐藏排序列表界面
+        document.getElementById('stitch-container').style.display = 'none';
+        // 3. 清空文件输入框的值
+        const stitchInput = document.getElementById('stitch-files');
+        if (stitchInput) stitchInput.value = '';
+        // 4. 隐藏输入框里的小 X 号 
+        if (stitchInput) {
+            const wrapper = stitchInput.parentElement;
+            const clearBtn = wrapper.querySelector('.file-clear-btn');
+            if(clearBtn) clearBtn.style.display = 'none';
+        }
     });
 });
-
 
 // ============================================================
 // 0. 弹窗与图片库管理逻辑
@@ -312,11 +326,165 @@ document.getElementById('btn-run-crop').addEventListener('click', async () => {
         } catch (error) { alert(error.message); showLoading(false); }
     }, 50);
 });
+
+// ============================================================
+// 5. 长图拼接逻辑
+// ============================================================
+
+// A. 监听上传
+document.getElementById('stitch-files').addEventListener('change', async function() {
+    if (!this.files || this.files.length === 0) return;
+    
+    // 追加新文件
+    stitchFiles = [...stitchFiles, ...Array.from(this.files)];
+    
+    // 渲染排序列表
+    await renderStitchSort();
+    
+    // 显示排序区
+    document.getElementById('stitch-container').style.display = 'block';
+    
+    // 清空 input 允许重复添加
+    this.value = '';
+});
+
+// B. 渲染排序列表 (带拖拽 + 删除)
+async function renderStitchSort() {
+    const list = document.getElementById('stitch-sort-list');
+    list.innerHTML = '';
+    
+    // 如果没图片了，隐藏整个区域并清空input
+    if (stitchFiles.length === 0) {
+        document.getElementById('stitch-container').style.display = 'none';
+        document.getElementById('stitch-files').value = '';
+        // 隐藏输入框的小叉叉
+        const inputWrapper = document.getElementById('stitch-files').parentElement;
+        const clearBtn = inputWrapper.querySelector('.file-clear-btn');
+        if(clearBtn) clearBtn.style.display = 'none';
+        return;
+    }
+    
+    stitchFiles.forEach((file, index) => {
+        const item = document.createElement('div');
+        item.className = 'sort-item';
+        item.draggable = true;
+        item.dataset.index = index;
+        
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        
+        // 序号角标
+        const badge = document.createElement('div');
+        badge.className = 'sort-index';
+        badge.innerText = index + 1;
+
+        // === 新增：删除按钮 ===
+        const delBtn = document.createElement('div');
+        delBtn.className = 'stitch-remove-btn';
+        delBtn.innerHTML = '×';
+        delBtn.title = '移除这张图片';
+        
+        // 删除事件
+        delBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // 防止触发拖拽
+            // 1. 从数组移除
+            stitchFiles.splice(index, 1);
+            // 2. 重新渲染
+            renderStitchSort();
+        });
+
+        item.appendChild(img);
+        item.appendChild(badge);
+        item.appendChild(delBtn); // 加入 DOM
+        
+        // 绑定拖拽事件 (保持不变)
+        item.addEventListener('dragstart', handleDragStart);
+        item.addEventListener('dragover', handleDragOver);
+        item.addEventListener('drop', handleDrop);
+        item.addEventListener('dragenter', (e) => e.preventDefault());
+
+        list.appendChild(item);
+    });
+}
+
+// --- 拖拽事件处理 ---
+let dragSrcIndex = null;
+
+function handleDragStart(e) {
+    this.classList.add('dragging');
+    dragSrcIndex = parseInt(this.dataset.index);
+    e.dataTransfer.effectAllowed = 'move';
+}
+
+function handleDragOver(e) {
+    e.preventDefault(); // 必要，允许 drop
+    e.dataTransfer.dropEffect = 'move';
+    return false;
+}
+
+function handleDrop(e) {
+    e.stopPropagation();
+    const target = e.currentTarget;
+    const targetIndex = parseInt(target.dataset.index);
+
+    if (dragSrcIndex !== targetIndex) {
+        // 交换数组元素
+        const item = stitchFiles.splice(dragSrcIndex, 1)[0];
+        stitchFiles.splice(targetIndex, 0, item);
+        // 重新渲染
+        renderStitchSort();
+    }
+    
+    // 移除样式
+    document.querySelectorAll('.sort-item').forEach(item => item.classList.remove('dragging'));
+    return false;
+}
+
+// C. 开始拼接
+document.getElementById('btn-run-stitch').addEventListener('click', async () => {
+    if (stitchFiles.length < 2) {
+        alert("请至少选择 2 张图片进行拼接！");
+        return;
+    }
+
+    const mode = document.getElementById('stitch-mode').value;
+    const gap = parseInt(document.getElementById('stitch-gap').value);
+
+    showLoading(true);
+
+    setTimeout(async () => {
+        try {
+            // 1. 加载所有图片对象
+            const loadedImages = await Promise.all(stitchFiles.map(async file => {
+                const { img } = await fileToImage(file);
+                return img;
+            }));
+
+            // 2. 拼接
+            const blob = await processStitch(loadedImages, mode, gap);
+
+            // 3. 显示结果 (这里不需要对比原图，我们只显示结果图)
+            // 为了复用 displayResult，我们随便传第一张图作为 original
+            // 但我们需要隐藏原始信息
+            const { img } = await fileToImage(stitchFiles[0]); // 假的原图
+            displayResult(stitchFiles[0], img, blob, 'jpg');
+            
+            // 隐藏原图卡片 (拼图没有所谓的"原图")
+            document.getElementById('card-orig').style.display = 'none';
+            
+            document.getElementById('preview-area').scrollIntoView({ behavior: 'smooth' });
+
+        } catch (error) {
+            alert('拼接出错: ' + error.message);
+            showLoading(false);
+        }
+    }, 50);
+});
+
 // ============================================================
 // Y. 输入框清除逻辑 (通用)
 // ============================================================
-
-// 1. 全局清除函数 (暴露给 HTML onclick 使用)
+// 1. 全局清除函数
 window.clearInput = function(inputId) {
     const input = document.getElementById(inputId);
     if (!input) return;
@@ -324,22 +492,28 @@ window.clearInput = function(inputId) {
     // 清空值
     input.value = '';
     
-    // 触发样式更新
+    // 触发样式更新 (隐藏 X 号)
     toggleClearBtn(input);
 
-    // 特殊处理：如果是裁剪页面，还要隐藏编辑器
+    // --- 特殊处理 A: 裁剪功能 ---
     if (inputId === 'crop-file') {
         document.getElementById('crop-editor-container').style.display = 'none';
-        // 销毁裁剪实例
-        import('./crop.js').then(module => {
-            // 这里我们简单刷新一下裁剪器状态，或者直接隐藏即可
-            // 因为下次 change 会重新 init
-        });
     }
     
-    // 隐藏预览区 (如果正好显示的是这张图的结果)
+    // --- 新增：特殊处理 B: 长图拼接功能 (加在这里) ---
+    if (inputId === 'stitch-files') {
+        // 1. 清空数组
+        stitchFiles = [];
+        // 2. 隐藏排序区域
+        document.getElementById('stitch-container').style.display = 'none';
+        // 3. 清空 DOM 中的列表内容 (保险起见)
+        document.getElementById('stitch-sort-list').innerHTML = '';
+    }
+    
+    // 隐藏预览区
     document.getElementById('preview-area').style.display = 'none';
 };
+
 
 // 2. 监听所有 file input，控制 X 号的显示
 document.querySelectorAll('input[type="file"]').forEach(input => {

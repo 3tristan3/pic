@@ -34,6 +34,7 @@
         <button class="tab-btn" data-target="tab-convert">🔄 格式转换</button>
         <button class="tab-btn" data-target="tab-upscale">🔍 图片放大</button>
         <button class="tab-btn" data-target="tab-canvas">✂️ 图片裁剪</button>
+        <button class="tab-btn" data-target="tab-stitch">🖼️ 长图拼接</button>
     </div>
 
     <div class="workspace">
@@ -167,6 +168,55 @@
                 <div style="font-size: 12px; color: var(--text-sub); margin-top: 8px; text-align: center;">
                     💡 提示：拖动白色边框调整大小，拖动中间移动选区，支持鼠标滚轮缩放。
                 </div>
+            </div>
+        </div>
+        <!-- ================= 模块 5: 长图拼接 (新增) ================= -->
+        <div id="tab-stitch" class="tool-section">
+            <div class="control-row">
+                <div class="input-group">
+                    <label>1. 选择多张图片</label>
+                    <!-- 支持多选 -->
+                    <div class="file-wrapper">
+                        <input type="file" id="stitch-files" accept="image/*" multiple>
+                        <div class="file-clear-btn" onclick="clearInput('stitch-files')">×</div>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>2. 拼接模式</label>
+                    <select id="stitch-mode">
+                        <option value="vertical" selected>⬇️ 竖向拼接 (长图)</option>
+                        <option value="horizontal">➡️ 横向拼接 (对比)</option>
+                        <option value="grid">🪟 宫格拼接 (九宫格)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>3. 间距 / 边框</label>
+                    <select id="stitch-gap">
+                        <option value="0" selected>无间距</option>
+                        <option value="10">小间距 (10px)</option>
+                        <option value="20">大间距 (20px)</option>
+                    </select>
+                </div>
+                
+                <div class="input-group" style="flex: 0;">
+                    <label>&nbsp;</label>
+                    <button class="action-btn" id="btn-run-stitch">开始拼接</button>
+                </div>
+            </div>
+            
+            <div style="font-size: 12px; color: var(--text-sub); text-align:center;">
+                ℹ️ 说明：支持拖拽排序。竖向模式下，图片将自动缩放至统一宽度以整齐排列。
+            </div>
+
+            <!-- 排序与预览区域 -->
+            <div id="stitch-container" style="display:none; margin-top:20px;">
+                <!-- 拖拽排序列表 -->
+                <div class="stitch-sort-area" id="stitch-sort-list">
+                    <!-- 缩略图会动态生成在这里 -->
+                </div>
+                <div style="text-align:center; margin:10px 0; color:#999; font-size:12px;">(可拖动图片调整顺序)</div>
             </div>
         </div>
 
