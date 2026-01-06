@@ -1,0 +1,154 @@
+/* style.css - 终极企业版 */
+
+/* --- 1. 全局与容器 --- */
+html, body {
+    margin: 0; padding: 0; width: 100%; min-height: 100vh;
+    background-color: #f4f6f8; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    color: #333;
+}
+body { display: flex; justify-content: center; padding-top: 40px; box-sizing: border-box; }
+
+.container {
+    background-color: #ffffff; width: 92%; max-width: 1000px;
+    border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    margin-bottom: 50px; overflow: hidden; height: fit-content; border: 1px solid #ebedf0;
+}
+
+.header { text-align: center; padding: 25px 30px; border-bottom: 1px solid #f0f0f0; background: #fff; }
+h1 { margin: 0; color: #1a1a1a; font-size: 20px; font-weight: 700; }
+.subtitle { margin-top: 6px; color: #8590a6; font-size: 12px; }
+
+/* --- 2. 导航 Tabs --- */
+.tabs { display: flex; background-color: #fafbfc; padding: 0 10px; border-bottom: 1px solid #e9ecef; gap: 5px; }
+.tab-btn {
+    padding: 16px 20px; font-size: 14px; font-weight: 600; color: #606266;
+    background: none; border: none; cursor: pointer; transition: all 0.2s; border-radius: 8px 8px 0 0;
+}
+.tab-btn:hover { color: #333; background: #f0f2f5; }
+.tab-btn.active { color: #0d6efd; background: #fff; box-shadow: 0 -2px 0 0 #0d6efd inset; }
+
+/* --- 3. 工作区布局 --- */
+.workspace { padding: 30px; min-height: 300px; }
+.tool-section { display: none; animation: fadeIn 0.3s ease; }
+.tool-section.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Grid 布局控制栏 */
+.control-row {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px; align-items: end; margin-bottom: 25px; padding: 20px;
+    background: #f8f9fa; border-radius: 10px; border: 1px solid #eaecf0;
+}
+.input-group { display: flex; flex-direction: column; gap: 8px; }
+label { font-size: 12px; font-weight: 700; color: #5e6d82; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* --- 4. 核心控件统一美化 (重点修改) --- */
+/* 所有输入框高度、圆角、背景统一 */
+input[type="file"], input[type="number"], select, .fake-file-btn {
+    height: 40px;
+    background: #fff;
+    border: 1px solid #dcdfe6;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 14px;
+    color: #606266;
+    transition: all 0.2s;
+    width: 100%;
+    /* 居中核心 */
+    text-align: center; 
+    text-align-last: center; /* 针对 select */
+}
+
+input:focus, select:focus {
+    border-color: #0d6efd; outline: none; box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+}
+
+/* File Input 特殊处理 */
+input[type="file"] {
+    padding: 4px; 
+    display: flex; align-items: center; cursor: pointer;
+    text-align: left; /* 恢复左对齐，因为里面有按钮 */
+}
+input[type="file"]::file-selector-button {
+    height: 28px; margin-right: 10px; border: none;
+    background: #eef2f6; color: #495057; border-radius: 4px;
+    padding: 0 12px; font-size: 12px; font-weight: 600; cursor: pointer;
+    line-height: 28px; transition: all 0.2s;
+}
+input[type="file"]::file-selector-button:hover { background: #dde3ea; color: #333; }
+
+/* 假的输入框按钮 (用于触发弹窗) */
+.fake-file-btn {
+    display: flex; align-items: center; justify-content: center;
+    background: #eef2f6; color: #0d6efd; font-weight: 600; cursor: pointer; border: 1px dashed #0d6efd;
+}
+.fake-file-btn:hover { background: #e7f1ff; }
+
+/* --- 5. 按钮与组件 --- */
+.action-btn {
+    background: linear-gradient(180deg, #0d6efd 0%, #0b5ed7 100%);
+    color: white; border: none; padding: 0 25px; height: 40px; border-radius: 6px;
+    font-size: 14px; font-weight: 600; cursor: pointer; width: 100%;
+    box-shadow: 0 2px 5px rgba(13, 110, 253, 0.3); transition: transform 0.1s;
+}
+.action-btn:hover { transform: translateY(-1px); }
+
+/* 比例按钮组 */
+.btn-group { display: flex; background: #fff; border: 1px solid #dcdfe6; border-radius: 6px; overflow: hidden; height: 40px; }
+.ratio-btn { flex: 1; border: none; background: transparent; cursor: pointer; font-size: 13px; color: #606266; border-right: 1px solid #eee; }
+.ratio-btn:last-child { border-right: none; }
+.ratio-btn.active { background: #e7f1ff; color: #0d6efd; font-weight: 700; }
+
+/* 裁剪器与预览 */
+.cropper-bg { background: #212529; }
+.preview-area { display: flex; gap: 30px; padding-top: 30px; border-top: 1px dashed #e0e0e0; flex-wrap: wrap; margin-top: 30px; }
+.preview-card { flex: 1; min-width: 300px; background: #fff; border: 1px solid #ebeef5; border-radius: 12px; padding: 20px; text-align: center; }
+.img-box { height: 320px; display: flex; align-items: center; justify-content: center; margin-top: 15px; border-radius: 8px; overflow: hidden; background: #f8f9fa; border: 1px solid #eee; }
+.img-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.download-btn { display: inline-flex; align-items: center; justify-content: center; margin-top: 20px; text-decoration: none; background-color: #67c23a; color: white; padding: 10px 30px; border-radius: 6px; font-size: 14px; font-weight: 600; }
+.loading { display: none; text-align: center; padding: 30px; color: #0d6efd; }
+
+/* --- 6. 弹窗 (Modal) 样式 --- */
+.modal-overlay {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.5); z-index: 1000; backdrop-filter: blur(3px);
+    justify-content: center; align-items: center;
+}
+.modal-content {
+    background: #fff; width: 90%; max-width: 800px; height: 80vh;
+    border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    display: flex; flex-direction: column; overflow: hidden; animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes popUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.modal-header { padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+.modal-title { font-size: 18px; font-weight: 700; color: #333; }
+.modal-close { cursor: pointer; font-size: 24px; color: #999; line-height: 1; }
+
+.modal-body { flex: 1; padding: 20px; overflow-y: auto; background: #f8f9fa; }
+
+/* 缩略图网格 */
+.upload-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+}
+.upload-add-btn {
+    border: 2px dashed #dcdfe6; border-radius: 8px; background: #fff;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 120px; cursor: pointer; color: #909399; transition: all 0.2s;
+}
+.upload-add-btn:hover { border-color: #0d6efd; color: #0d6efd; background: #f0f7ff; }
+
+.thumb-item {
+    position: relative; border-radius: 8px; overflow: hidden; border: 1px solid #eee;
+    height: 120px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.thumb-item img { width: 100%; height: 100%; object-fit: cover; }
+.thumb-remove {
+    position: absolute; top: 5px; right: 5px; width: 20px; height: 20px;
+    background: rgba(0,0,0,0.6); color: #fff; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer;
+}
+.thumb-remove:hover { background: #ff4d4f; }
+
+.modal-footer { padding: 20px; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: 10px; }
