@@ -17,8 +17,18 @@
 </head>
 <body>
 
-<!-- 深色模式切换 -->
-<button class="theme-toggle-btn" id="btn-theme-toggle">🌙 深色模式</button>
+<!-- 主题切换器 -->
+<div class="theme-dropdown">
+    <button class="theme-toggle-btn" id="btn-theme-toggle">
+        💻 跟随系统 <!-- 默认文字 -->
+    </button>
+    <div class="theme-menu" id="theme-menu">
+        <div class="theme-option" data-mode="light">☀️ 浅色模式</div>
+        <div class="theme-option" data-mode="dark">🌙 深色模式</div>
+        <div class="theme-option" data-mode="system">💻 跟随系统</div>
+    </div>
+</div>
+
 
 <!-- 主容器 (白色卡片) -->
 <div class="container">

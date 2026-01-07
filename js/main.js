@@ -43,25 +43,65 @@ function updateRunTime() {
 updateGreeting();
 setInterval(updateRunTime, 1000);
 // ============================================================
-// X. 深色模式切换逻辑 (新增)
+// X. 主题切换逻辑 (三态：Light / Dark / System)
 // ============================================================
+
 const themeBtn = document.getElementById('btn-theme-toggle');
+const themeMenu = document.getElementById('theme-menu');
+const themeOptions = document.querySelectorAll('.theme-option');
+const dropdown = document.querySelector('.theme-dropdown');
 
-// 1. 初始化检查本地存储
-if (localStorage.getItem('theme') === 'dark') {
-    document.body.classList.add('dark-mode');
-    themeBtn.innerText = '☀️ 浅色模式';
-}
-
-// 2. 切换逻辑
-if (themeBtn) {
-    themeBtn.addEventListener('click', () => {
-        document.body.classList.toggle('dark-mode');
-        const isDark = document.body.classList.contains('dark-mode');
-        themeBtn.innerText = isDark ? '☀️ 浅色模式' : '🌙 深色模式';
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+// 1. 应用主题的核心函数
+function applyTheme(mode) {
+    // 先清理所有强制类名
+    document.body.classList.remove('light-mode', 'dark-mode');
+    
+    // 更新按钮文字和菜单高亮
+    themeOptions.forEach(opt => {
+        opt.classList.remove('active');
+        if (opt.dataset.mode === mode) {
+            opt.classList.add('active');
+            themeBtn.innerText = opt.innerText; // 按钮显示当前选中的模式
+        }
     });
+
+    if (mode === 'light') {
+        document.body.classList.add('light-mode'); // 强行浅色
+    } else if (mode === 'dark') {
+        document.body.classList.add('dark-mode'); // 强行深色
+    } else {
+        // system 模式：啥类名都不加，完全交给 CSS 的 @media 查询
+        // 这里不需要写 JS 判断，CSS 会自己处理
+    }
+
+    // 保存设置
+    localStorage.setItem('theme_preference', mode);
 }
+
+// 2. 初始化
+const savedMode = localStorage.getItem('theme_preference') || 'system';
+applyTheme(savedMode);
+
+// 3. 交互逻辑
+// 点击按钮 -> 显示/隐藏菜单
+themeBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    dropdown.classList.toggle('show');
+});
+
+// 点击选项 -> 切换模式
+themeOptions.forEach(opt => {
+    opt.addEventListener('click', () => {
+        const mode = opt.dataset.mode;
+        applyTheme(mode);
+        dropdown.classList.remove('show');
+    });
+});
+
+// 点击空白处 -> 关闭菜单
+document.addEventListener('click', () => {
+    dropdown.classList.remove('show');
+});
 
 
 // ============================================================

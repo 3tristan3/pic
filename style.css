@@ -1,6 +1,6 @@
+/* --- 1. 核心变量定义 --- */
 
-
-/* --- 1. 核心变量 --- */
+/* A. 默认浅色变量 (Base) */
 :root {
     --bg-body: #F5F5F7;
     --bg-card: #FFFFFF;
@@ -18,6 +18,25 @@
     --cropper-bg: #1c1c1e;
 }
 
+/* B. 系统自动深色 (System Dark) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-body: #000000;
+        --bg-card: #1C1C1E;
+        --bg-input: #2C2C2E;
+        --bg-input-hover: #3A3A3C;
+        --border-color: rgba(255, 255, 255, 0.1);
+        --text-main: #F5F5F7;
+        --text-sub: #98989D;
+        --primary: #0A84FF;
+        --primary-hover: #409CFF;
+        --shadow-card: 0 12px 40px rgba(0, 0, 0, 0.3);
+        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+        --cropper-bg: #000000;
+    }
+}
+
+/* C. 手动强制深色 (Manual Dark - 优先级更高) */
 body.dark-mode {
     --bg-body: #000000;
     --bg-card: #1C1C1E;
@@ -31,6 +50,22 @@ body.dark-mode {
     --shadow-card: 0 12px 40px rgba(0, 0, 0, 0.3);
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
     --cropper-bg: #000000;
+}
+
+/* D. 手动强制浅色 (Manual Light - 关键修复！用于在系统深色时强行变白) */
+body.light-mode {
+    --bg-body: #F5F5F7;
+    --bg-card: #FFFFFF;
+    --bg-input: #eff1f5;
+    --bg-input-hover: #e5e7eb;
+    --border-color: rgba(0, 0, 0, 0.08);
+    --text-main: #1D1D1F;
+    --text-sub: #86868B;
+    --primary: #0071E3;
+    --primary-hover: #0077ED;
+    --shadow-card: 0 12px 40px rgba(0, 0, 0, 0.08);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+    --cropper-bg: #1c1c1e;
 }
 
 /* --- 2. 全局布局 --- */
@@ -227,3 +262,34 @@ input[type="file"].has-file { padding-right: 40px; }
     .modal-content { width: 100%; height: 100%; border-radius: 0; }
     .footer-content { flex-direction: column; gap: 10px; }
 }
+/* --- 主题切换器 (下拉菜单风格) --- */
+.theme-dropdown {
+    position: fixed; top: 20px; right: 20px; z-index: 100;
+}
+
+.theme-toggle-btn {
+    background: var(--bg-card); color: var(--text-main);
+    border: 1px solid var(--border-color); padding: 8px 16px; 
+    border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer;
+    box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 6px;
+    min-width: 90px; justify-content: center;
+}
+
+.theme-menu {
+    display: none; /* 默认隐藏 */
+    position: absolute; top: 40px; right: 0;
+    background: var(--bg-card); border: 1px solid var(--border-color);
+    border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    width: 120px; overflow: hidden;
+    animation: fadeIn 0.2s ease;
+}
+
+.theme-option {
+    padding: 10px 15px; font-size: 13px; color: var(--text-main); cursor: pointer;
+    display: flex; align-items: center; gap: 8px;
+}
+.theme-option:hover { background: var(--bg-input); }
+.theme-option.active { color: var(--primary); font-weight: 600; background: var(--bg-input-hover); }
+
+/* 点击显示菜单 */
+.theme-dropdown.show .theme-menu { display: block; }
