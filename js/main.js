@@ -613,69 +613,65 @@ function toggleClearBtn(input) {
     }
 }
 // ============================================================
-// Z. 真实访客统计 (CounterAPI 防弹版)
+// Z. 真实访客统计 (官方 SDK 版)
 // ============================================================
 
-// 【重要】请修改 namespace，确保全球唯一，否则会读到别人的数据
-// 建议加上您的名字或项目缩写，如 'img-tool-yourname-001'
-const COUNTER_NAMESPACE = 'img-wizopen-pro-v2024'; 
-const COUNTER_KEY_PV = 'pv';
-const COUNTER_KEY_UV = 'uv';
+// 【配置】请修改 namespace，确保全球唯一
+const NAMESPACE = 'image-workbench-pro-v1'; 
+const KEY_PV = 'pv';
+const KEY_UV = 'uv';
 
-// 通用 API 调用函数
-async function counterApi(key, action) {
-    // action: 'up' (增加) | 'info' (只读)
-    const url = `https://api.counterapi.dev/v1/${COUNTER_NAMESPACE}/${key}/${action}`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`API Error: ${res.status}`);
-    const data = await res.json();
-    return data.count;
-}
-
-// 1. 处理 PV (浏览量) - 独立逻辑
-(async function initPV() {
+// 1. 处理 PV (浏览量) - 独立执行
+(function initPV() {
     const el = document.getElementById('busuanzi_value_site_pv');
     if (!el) return;
-    
-    try {
-        // PV 永远是 +1
-        const count = await counterApi(COUNTER_KEY_PV, 'up');
-        el.innerText = count.toLocaleString();
-    } catch (e) {
-        console.warn("PV 统计失败:", e);
-        el.innerText = "1"; // 失败时给个安慰值，别显示横杠
+
+    // 官方文档写法: counter.up(namespace, key)
+    // 注意：counter 对象由 client.js 提供
+    if (typeof counter === 'undefined') {
+        el.innerText = "Err"; // 脚本加载失败
+        return;
     }
+
+    counter.up(NAMESPACE, KEY_PV).then(res => {
+        el.innerText = res.count.toLocaleString();
+    }).catch(err => {
+        console.warn("PV Error:", err);
+        el.innerText = "1"; // 失败保底
+    });
 })();
 
-// 2. 处理 UV (访客数) - 独立逻辑
-(async function initUV() {
+// 2. 处理 UV (访客数) - 独立执行
+(function initUV() {
     const el = document.getElementById('busuanzi_value_site_uv');
     if (!el) return;
 
-    try {
-        const today = new Date().toDateString();
-        const lastVisit = localStorage.getItem('counter_last_visit');
-        
-        let count;
-        
-        if (lastVisit !== today) {
-            // 情况 A: 今天第一次来 -> 必须 +1 (这会自动在服务器创建 Key)
-            count = await counterApi(COUNTER_KEY_UV, 'up');
+    if (typeof counter === 'undefined') {
+        el.innerText = "Err";
+        return;
+    }
+
+    const today = new Date().toDateString();
+    const lastVisit = localStorage.getItem('counter_last_visit');
+
+    // 逻辑：今天没来过 -> up(+1)，今天来过 -> get(只读)
+    if (lastVisit !== today) {
+        counter.up(NAMESPACE, KEY_UV).then(res => {
+            el.innerText = res.count.toLocaleString();
             localStorage.setItem('counter_last_visit', today);
-        } else {
-            // 情况 B: 今天来过了 -> 尝试只读 (info)
-            try {
-                count = await counterApi(COUNTER_KEY_UV, 'info');
-            } catch (err) {
-                // 特殊情况：如果服务器上 Key 被删了，但本地还有缓存，info 会报错
-                // 此时救急：再次调用 up 重新创建 Key
-                count = await counterApi(COUNTER_KEY_UV, 'up');
-            }
-        }
-        
-        el.innerText = count.toLocaleString();
-    } catch (e) {
-        console.warn("UV 统计失败:", e);
-        el.innerText = "1"; 
+        }).catch(err => {
+            console.warn("UV Up Error:", err);
+            el.innerText = "1";
+        });
+    } else {
+        counter.get(NAMESPACE, KEY_UV).then(res => {
+            el.innerText = res.count.toLocaleString();
+        }).catch(err => {
+            // 如果 key 还没创建(比如清理了服务器数据)，get 会报错
+            // 这时尝试用 up 救场
+            counter.up(NAMESPACE, KEY_UV).then(res => {
+                el.innerText = res.count.toLocaleString();
+            }).catch(e => el.innerText = "1");
+        });
     }
 })();
