@@ -613,65 +613,74 @@ function toggleClearBtn(input) {
     }
 }
 // ============================================================
-// Z. 真实访客统计 (官方 SDK 版)
+// Z. 真实访客统计 (原生 Fetch 版 - 不依赖 client.js)
 // ============================================================
 
-// 【配置】请修改 namespace，确保全球唯一
-const NAMESPACE = 'image-workbench-pro-v1'; 
+// 【配置】请修改 namespace，确保全球唯一 (建议加上您的名字缩写)
+const COUNTER_NAMESPACE = 'image-workbench-pro-2024'; 
 const KEY_PV = 'pv';
 const KEY_UV = 'uv';
 
-// 1. 处理 PV (浏览量) - 独立执行
-(function initPV() {
+// 通用 API 请求函数 (防弹设计)
+async function updateCounter(key, action) {
+    // action: 'up' (增加) | 'info' (只读)
+    const url = `https://api.counterapi.dev/v1/${COUNTER_NAMESPACE}/${key}/${action}`;
+    
+    try {
+        const response = await fetch(url);
+        // 如果 API 报错 (比如 namespace 第一次创建)，尝试容错
+        if (!response.ok) {
+            console.warn(`CounterAPI ${action} failed:`, response.status);
+            return null;
+        }
+        const data = await response.json();
+        return data.count;
+    } catch (error) {
+        console.warn("Network Error:", error);
+        return null;
+    }
+}
+
+// 1. 处理 PV (浏览量)
+(async function initPV() {
     const el = document.getElementById('busuanzi_value_site_pv');
     if (!el) return;
 
-    // 官方文档写法: counter.up(namespace, key)
-    // 注意：counter 对象由 client.js 提供
-    if (typeof counter === 'undefined') {
-        el.innerText = "Err"; // 脚本加载失败
-        return;
+    // PV 永远 +1
+    const count = await updateCounter(KEY_PV, 'up');
+    
+    if (count !== null) {
+        el.innerText = count.toLocaleString();
+    } else {
+        el.innerText = "-"; // 失败显示短横线
     }
-
-    counter.up(NAMESPACE, KEY_PV).then(res => {
-        el.innerText = res.count.toLocaleString();
-    }).catch(err => {
-        console.warn("PV Error:", err);
-        el.innerText = "1"; // 失败保底
-    });
 })();
 
-// 2. 处理 UV (访客数) - 独立执行
-(function initUV() {
+// 2. 处理 UV (访客数)
+(async function initUV() {
     const el = document.getElementById('busuanzi_value_site_uv');
     if (!el) return;
 
-    if (typeof counter === 'undefined') {
-        el.innerText = "Err";
-        return;
-    }
-
     const today = new Date().toDateString();
     const lastVisit = localStorage.getItem('counter_last_visit');
+    let count = null;
 
-    // 逻辑：今天没来过 -> up(+1)，今天来过 -> get(只读)
     if (lastVisit !== today) {
-        counter.up(NAMESPACE, KEY_UV).then(res => {
-            el.innerText = res.count.toLocaleString();
-            localStorage.setItem('counter_last_visit', today);
-        }).catch(err => {
-            console.warn("UV Up Error:", err);
-            el.innerText = "1";
-        });
+        // 今天第一次来 -> +1
+        count = await updateCounter(KEY_UV, 'up');
+        if (count !== null) localStorage.setItem('counter_last_visit', today);
     } else {
-        counter.get(NAMESPACE, KEY_UV).then(res => {
-            el.innerText = res.count.toLocaleString();
-        }).catch(err => {
-            // 如果 key 还没创建(比如清理了服务器数据)，get 会报错
-            // 这时尝试用 up 救场
-            counter.up(NAMESPACE, KEY_UV).then(res => {
-                el.innerText = res.count.toLocaleString();
-            }).catch(e => el.innerText = "1");
-        });
+        // 今天来过 -> 只读
+        count = await updateCounter(KEY_UV, 'info');
+        // 特殊情况：如果 info 失败(例如服务器key丢了)，尝试用 up 补救
+        if (count === null) {
+             count = await updateCounter(KEY_UV, 'up');
+        }
+    }
+
+    if (count !== null) {
+        el.innerText = count.toLocaleString();
+    } else {
+        el.innerText = "-";
     }
 })();
