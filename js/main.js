@@ -613,59 +613,69 @@ function toggleClearBtn(input) {
     }
 }
 // ============================================================
-// Z. 真实访客统计 (基于 CounterAPI.dev)
+// Z. 真实访客统计 (CounterAPI 防弹版)
 // ============================================================
 
-// 【配置区】请修改下面的字符串，确保唯一，防止和别人冲突
-const COUNTER_NAMESPACE = 'image-workbench-pro'; 
-const COUNTER_KEY_PV = 'page_views';
-const COUNTER_KEY_UV = 'unique_visitors';
+// 【重要】请修改 namespace，确保全球唯一，否则会读到别人的数据
+// 建议加上您的名字或项目缩写，如 'img-tool-yourname-001'
+const COUNTER_NAMESPACE = 'img-wizopen-pro-v2024'; 
+const COUNTER_KEY_PV = 'pv';
+const COUNTER_KEY_UV = 'uv';
 
-async function fetchCounterStats() {
-    const pvEl = document.getElementById('busuanzi_value_site_pv');
-    const uvEl = document.getElementById('busuanzi_value_site_uv');
+// 通用 API 调用函数
+async function counterApi(key, action) {
+    // action: 'up' (增加) | 'info' (只读)
+    const url = `https://api.counterapi.dev/v1/${COUNTER_NAMESPACE}/${key}/${action}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`API Error: ${res.status}`);
+    const data = await res.json();
+    return data.count;
+}
 
-    // 辅助函数：调用 API
-    // 模式：up (增加) 或 info (只读)
-    const callApi = async (key, mode) => {
-        try {
-            // 文档：https://api.counterapi.dev/v1/{namespace}/{key}/{mode}
-            const response = await fetch(`https://api.counterapi.dev/v1/${COUNTER_NAMESPACE}/${key}/${mode}`);
-            const data = await response.json();
-            return data.count;
-        } catch (e) {
-            console.warn(`CounterAPI Error [${key}]:`, e);
-            return null;
-        }
-    };
+// 1. 处理 PV (浏览量) - 独立逻辑
+(async function initPV() {
+    const el = document.getElementById('busuanzi_value_site_pv');
+    if (!el) return;
+    
+    try {
+        // PV 永远是 +1
+        const count = await counterApi(COUNTER_KEY_PV, 'up');
+        el.innerText = count.toLocaleString();
+    } catch (e) {
+        console.warn("PV 统计失败:", e);
+        el.innerText = "1"; // 失败时给个安慰值，别显示横杠
+    }
+})();
+
+// 2. 处理 UV (访客数) - 独立逻辑
+(async function initUV() {
+    const el = document.getElementById('busuanzi_value_site_uv');
+    if (!el) return;
 
     try {
-        // 1. 处理 PV (浏览量)：每次刷新页面都 +1
-        const pvCount = await callApi(COUNTER_KEY_PV, 'up');
-        if (pvCount !== null && pvEl) pvEl.innerText = pvCount.toLocaleString();
-
-        // 2. 处理 UV (访客数)：本地去重
         const today = new Date().toDateString();
         const lastVisit = localStorage.getItem('counter_last_visit');
         
-        let uvCount;
+        let count;
+        
         if (lastVisit !== today) {
-            // 今天没来过 -> +1
-            uvCount = await callApi(COUNTER_KEY_UV, 'up');
+            // 情况 A: 今天第一次来 -> 必须 +1 (这会自动在服务器创建 Key)
+            count = await counterApi(COUNTER_KEY_UV, 'up');
             localStorage.setItem('counter_last_visit', today);
         } else {
-            // 今天来过 -> 只读不加
-            uvCount = await callApi(COUNTER_KEY_UV, 'info');
+            // 情况 B: 今天来过了 -> 尝试只读 (info)
+            try {
+                count = await counterApi(COUNTER_KEY_UV, 'info');
+            } catch (err) {
+                // 特殊情况：如果服务器上 Key 被删了，但本地还有缓存，info 会报错
+                // 此时救急：再次调用 up 重新创建 Key
+                count = await counterApi(COUNTER_KEY_UV, 'up');
+            }
         }
-
-        if (uvCount !== null && uvEl) uvEl.innerText = uvCount.toLocaleString();
-
-    } catch (err) {
-        // 容错处理
-        if(pvEl) pvEl.innerText = "--";
-        if(uvEl) uvEl.innerText = "--";
+        
+        el.innerText = count.toLocaleString();
+    } catch (e) {
+        console.warn("UV 统计失败:", e);
+        el.innerText = "1"; 
     }
-}
-
-// 执行
-fetchCounterStats();
+})();
