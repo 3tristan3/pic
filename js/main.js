@@ -612,3 +612,60 @@ function toggleClearBtn(input) {
         }
     }
 }
+// ============================================================
+// Z. 真实访客统计 (基于 CounterAPI.dev)
+// ============================================================
+
+// 【配置区】请修改下面的字符串，确保唯一，防止和别人冲突
+const COUNTER_NAMESPACE = 'image-workbench-pro'; 
+const COUNTER_KEY_PV = 'page_views';
+const COUNTER_KEY_UV = 'unique_visitors';
+
+async function fetchCounterStats() {
+    const pvEl = document.getElementById('busuanzi_value_site_pv');
+    const uvEl = document.getElementById('busuanzi_value_site_uv');
+
+    // 辅助函数：调用 API
+    // 模式：up (增加) 或 info (只读)
+    const callApi = async (key, mode) => {
+        try {
+            // 文档：https://api.counterapi.dev/v1/{namespace}/{key}/{mode}
+            const response = await fetch(`https://api.counterapi.dev/v1/${COUNTER_NAMESPACE}/${key}/${mode}`);
+            const data = await response.json();
+            return data.count;
+        } catch (e) {
+            console.warn(`CounterAPI Error [${key}]:`, e);
+            return null;
+        }
+    };
+
+    try {
+        // 1. 处理 PV (浏览量)：每次刷新页面都 +1
+        const pvCount = await callApi(COUNTER_KEY_PV, 'up');
+        if (pvCount !== null && pvEl) pvEl.innerText = pvCount.toLocaleString();
+
+        // 2. 处理 UV (访客数)：本地去重
+        const today = new Date().toDateString();
+        const lastVisit = localStorage.getItem('counter_last_visit');
+        
+        let uvCount;
+        if (lastVisit !== today) {
+            // 今天没来过 -> +1
+            uvCount = await callApi(COUNTER_KEY_UV, 'up');
+            localStorage.setItem('counter_last_visit', today);
+        } else {
+            // 今天来过 -> 只读不加
+            uvCount = await callApi(COUNTER_KEY_UV, 'info');
+        }
+
+        if (uvCount !== null && uvEl) uvEl.innerText = uvCount.toLocaleString();
+
+    } catch (err) {
+        // 容错处理
+        if(pvEl) pvEl.innerText = "--";
+        if(uvEl) uvEl.innerText = "--";
+    }
+}
+
+// 执行
+fetchCounterStats();
