@@ -293,3 +293,32 @@ input[type="file"].has-file { padding-right: 40px; }
 
 /* 点击显示菜单 */
 .theme-dropdown.show .theme-menu { display: block; }
+/* --- 5. 控件美化 (Apple 风格填充式输入框) --- */
+
+/* 修改点：加入了 input[type="text"] 以适配文件名输入框 */
+input[type="file"], 
+input[type="number"], 
+input[type="text"],  /* <--- 新增这行 */
+select, 
+.fake-file-btn {
+    height: 44px; 
+    background: var(--bg-input); /* 浅灰填充 */
+    border: 1px solid transparent; /* 默认无边框 */
+    border-radius: var(--radius-input);
+    box-sizing: border-box; 
+    font-size: 14px; 
+    color: var(--text-main);
+    transition: all 0.2s; 
+    width: 100%;
+    text-align: center; 
+    text-align-last: center;
+    box-shadow: none; /* 去掉阴影，扁平化 */
+}
+
+/* 聚焦时显示蓝色细边框 */
+input:focus, select:focus {
+    background: var(--bg-card); /* 聚焦变白/变深 */
+    border-color: var(--primary); 
+    box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.15); /* 柔和光晕 */
+    outline: none;
+}

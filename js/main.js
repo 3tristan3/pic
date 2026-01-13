@@ -228,21 +228,23 @@ function removeFile(index) {
     renderThumbnails();
 }
 
-
 // ============================================================
-// 1. 图片压缩 (逻辑：读取 globalBatchFiles)
+// 1. 图片压缩 (修复版：支持自定义命名)
 // ============================================================
-document.getElementById('btn-run-resize').addEventListener('click', async () => {
+document.getElementById('btn-run-resize')?.addEventListener('click', async () => {
     const targetInput = document.getElementById('resize-target');
     
-    // 校验全局数组
+    // 【关键修复】获取文件名输入框的值
+    const filenameInput = document.getElementById('resize-filename');
+    const customName = filenameInput ? filenameInput.value.trim() : '';
+
     if (globalBatchFiles.length === 0) {
         alert("请先点击'管理图片库'添加图片！");
         return;
     }
     const targetKB = parseFloat(targetInput.value);
 
-    // --- 分支 A: 单张预览 ---
+    // --- 单张逻辑 ---
     if (globalBatchFiles.length === 1) {
         document.getElementById('batch-progress').style.display = 'none';
         showLoading(true);
@@ -251,20 +253,20 @@ document.getElementById('btn-run-resize').addEventListener('click', async () => 
                 const file = globalBatchFiles[0];
                 const { img } = await fileToImage(file);
                 const blob = await processResize(img, targetKB);
-                displayResult(file, img, blob, 'jpg');
+                
+                // 【关键修复】把 customName 传进去！
+                displayResult(file, img, blob, 'jpg', customName);
+                
             } catch (error) { alert(error.message); showLoading(false); }
         }, 50);
     } 
-    // --- 分支 B: 批量打包 ---
+    // --- 批量逻辑 (ZIP 命名) ---
     else {
         document.getElementById('preview-area').style.display = 'none';
         showLoading(true);
-        
         const progressDiv = document.getElementById('batch-progress');
-        // 重置进度条文案
         progressDiv.style.display = 'block';
         progressDiv.innerHTML = `<span style="color:var(--primary); font-weight:bold; font-size:14px;">📦 正在批量处理: <span id="batch-count">0/${globalBatchFiles.length}</span></span>`;
-        
         const countSpan = document.getElementById('batch-count');
 
         setTimeout(async () => {
@@ -275,17 +277,23 @@ document.getElementById('btn-run-resize').addEventListener('click', async () => 
                 
                 showLoading(false);
                 
-                // 自动下载
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(zipBlob);
-                link.download = `batch_compressed_${new Date().getTime()}.zip`;
+                
+                // 【关键修复】批量下载的命名逻辑
+                // 获取当前时间字符串
+                const now = new Date();
+                const timeStr = `${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}_${now.getHours()}${now.getMinutes()}`;
+
+                if (customName) {
+                    link.download = `${customName}.zip`;
+                } else {
+                    link.download = `图片压缩批量包-${timeStr}.zip`;
+                }
+                
                 link.click();
-                
-                // 更新完成状态
                 progressDiv.innerHTML = `<span style="color:#10b981; font-weight:bold; font-size:14px;">✅ 批量处理完成！ZIP 压缩包已下载。</span>`;
-                
             } catch (error) { 
-                console.error(error);
                 alert("批量错误: " + error.message); 
                 showLoading(false); 
                 progressDiv.innerHTML = `<span style="color:#ef4444; font-weight:bold;">❌ 处理失败</span>`;
